@@ -1,0 +1,146 @@
+-- Anime Recommendation Database Schema
+
+Create Database AniFAST;
+
+GO
+
+Use AniFast;
+
+CREATE TABLE Users (
+    UserID INT PRIMARY KEY IDENTITY(1,1),
+    Username VARCHAR(255) NOT NULL UNIQUE,
+    Email VARCHAR(255) NOT NULL UNIQUE,
+    PasswordHash VARCHAR(255) NOT NULL,
+    Avatar VARCHAR(255),
+    JoinDate DATETIME DEFAULT GETDATE(),
+    Bio TEXT
+);
+
+CREATE TABLE Studios (
+    StudioID INT PRIMARY KEY IDENTITY(1,1),
+    Name VARCHAR(255) NOT NULL UNIQUE,
+    Description TEXT,
+    Founded DATE,
+    Website VARCHAR(255)
+);
+
+CREATE TABLE Anime (
+    AnimeID INT PRIMARY KEY IDENTITY(1,1),
+    Title VARCHAR(255) NOT NULL,
+    JapaneseTitle VARCHAR(255),
+    Type VARCHAR(50) NOT NULL,
+    Episodes INT,
+    Status VARCHAR(50),
+    ReleaseDate DATE,
+    Synopsis TEXT,
+    Rating FLOAT,
+    CoverImage VARCHAR(255),
+    StudioID INT FOREIGN KEY REFERENCES Studios(StudioID)
+);
+
+CREATE TABLE Genres (
+    GenreID INT PRIMARY KEY IDENTITY(1,1),
+    Name VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE Tags (
+    TagID INT PRIMARY KEY IDENTITY(1,1),
+    Name VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE AnimeGenres (
+    AnimeID INT NOT NULL FOREIGN KEY REFERENCES Anime(AnimeID),
+    GenreID INT NOT NULL FOREIGN KEY REFERENCES Genres(GenreID),
+    PRIMARY KEY (AnimeID, GenreID)
+);
+
+CREATE TABLE AnimeTags (
+    AnimeID INT NOT NULL FOREIGN KEY REFERENCES Anime(AnimeID),
+    TagID INT NOT NULL FOREIGN KEY REFERENCES Tags(TagID),
+    PRIMARY KEY (AnimeID, TagID)
+);
+
+CREATE TABLE UserAnimeList (
+    ListID INT PRIMARY KEY IDENTITY(1,1),
+    UserID INT NOT NULL FOREIGN KEY REFERENCES Users(UserID),
+    AnimeID INT NOT NULL FOREIGN KEY REFERENCES Anime(AnimeID),
+    Status VARCHAR(50),
+    Score INT,
+    Progress INT,
+    StartDate DATE,
+    FinishDate DATE,
+    Notes TEXT
+);
+
+CREATE TABLE Reviews (
+    ReviewID INT PRIMARY KEY IDENTITY(1,1),
+    UserID INT NOT NULL FOREIGN KEY REFERENCES Users(UserID),
+    AnimeID INT NOT NULL FOREIGN KEY REFERENCES Anime(AnimeID),
+    Rating INT NOT NULL CHECK (Rating BETWEEN 1 AND 10),
+    ReviewText TEXT,
+    Timestamp DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE Favorites (
+    UserID INT NOT NULL FOREIGN KEY REFERENCES Users(UserID),
+    AnimeID INT NOT NULL FOREIGN KEY REFERENCES Anime(AnimeID),
+    PRIMARY KEY (UserID, AnimeID)
+);
+
+CREATE TABLE Watchlist (
+    UserID INT NOT NULL FOREIGN KEY REFERENCES Users(UserID),
+    AnimeID INT NOT NULL FOREIGN KEY REFERENCES Anime(AnimeID),
+    PRIMARY KEY (UserID, AnimeID)
+);
+
+CREATE TABLE Forums (
+    ForumID INT PRIMARY KEY IDENTITY(1,1),
+    Title VARCHAR(255) NOT NULL,
+    CreatedBy INT NOT NULL FOREIGN KEY REFERENCES Users(UserID),
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE Posts (
+    PostID INT PRIMARY KEY IDENTITY(1,1),
+    ForumID INT NOT NULL FOREIGN KEY REFERENCES Forums(ForumID),
+    UserID INT NOT NULL FOREIGN KEY REFERENCES Users(UserID),
+    Content TEXT NOT NULL,
+    Timestamp DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE Friends (
+    UserID INT NOT NULL FOREIGN KEY REFERENCES Users(UserID),
+    FriendID INT NOT NULL FOREIGN KEY REFERENCES Users(UserID),
+    Status VARCHAR(50) NOT NULL,
+    PRIMARY KEY (UserID, FriendID)
+);
+
+CREATE TABLE Messages (
+    MessageID INT PRIMARY KEY IDENTITY(1,1),
+    SenderID INT NOT NULL FOREIGN KEY REFERENCES Users(UserID),
+    ReceiverID INT NOT NULL FOREIGN KEY REFERENCES Users(UserID),
+    Content TEXT NOT NULL,
+    Timestamp DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE SeasonalAnime (
+    AnimeID INT NOT NULL FOREIGN KEY REFERENCES Anime(AnimeID),
+    Season VARCHAR(50) NOT NULL,
+    Year INT NOT NULL,
+    PRIMARY KEY (AnimeID, Season, Year)
+);
+
+CREATE TABLE Trending (
+    AnimeID INT NOT NULL FOREIGN KEY REFERENCES Anime(AnimeID),
+    Rank INT NOT NULL,
+    UpdatedAt DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE Recommendations (
+    RecID INT PRIMARY KEY IDENTITY(1,1),
+    AnimeID INT NOT NULL FOREIGN KEY REFERENCES Anime(AnimeID),
+    SuggestedAnimeID INT NOT NULL FOREIGN KEY REFERENCES Anime(AnimeID),
+    Reason TEXT,
+    Upvotes INT DEFAULT 0,
+    Downvotes INT DEFAULT 0
+);
