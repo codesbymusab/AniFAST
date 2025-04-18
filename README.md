@@ -11,4 +11,4 @@ NOTE: For obtainig database
 
 3.Right-click on Databases → Restore Database…
 
-4.Choose Device → Select the given .bak file
+4.Choose Device → Select the downloaded .bak file
