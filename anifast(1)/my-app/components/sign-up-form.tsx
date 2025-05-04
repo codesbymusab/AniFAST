@@ -1,65 +1,51 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import Link from "next/link";
+import type React from "react"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import Link from "next/link"
 
 export function SignUpForm() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter()
+  const [email, setEmail] = useState("")
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!agreedToTerms) {
-      alert("You must agree to the terms of service");
-      return;
+      alert("You must agree to the terms of service")
+      return
     }
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
+      alert("Passwords do not match")
+      return
     }
 
-    setIsLoading(true);
-    setError(null);
+    setIsLoading(true)
 
     try {
-      // Call the API route to sign up the new user.
-      const res = await fetch("/api/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, username, password }),
-      });
-      console.log("Fetch call executed");
-      
-      const data = await res.json();
-      console.log("Received response:", data);
-      console.log("Response status:", res.status);
+      // Simulate sign up process
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      console.log({ email, username, password, confirmPassword, agreedToTerms })
 
-      if (!res.ok) {
-        // If the API returns an error, throw it.
-        throw new Error(data.error || "Sign up failed");
-      }
-
-      // Redirect to login page after a successful sign-up.
-      router.push("/login");
-    } catch (error: any) {
-      console.error("Sign up failed:", error.message);
-      setError(error.message);
+      // Redirect to login page after successful sign up
+      router.push("/login")
+    } catch (error) {
+      console.error("Sign up failed:", error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -107,32 +93,28 @@ export function SignUpForm() {
         />
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="agree"
-            checked={agreedToTerms}
-            onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
-            className="border-[#E5A9FF] data-[state=checked]:bg-[#E5A9FF] data-[state=checked]:text-[#0E0A1F]"
-          />
-          <label htmlFor="agree" className="text-sm text-gray-300">
-            I agree to the{" "}
-            <Link href="/terms">
-              <span className="underline">terms of service</span>
-            </Link>
-          </label>
-        </div>
+      <div className="flex items-start space-x-2 pt-2">
+        <Checkbox
+          id="terms"
+          checked={agreedToTerms}
+          onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+          className="border-[#E5A9FF] data-[state=checked]:bg-[#E5A9FF] data-[state=checked]:text-[#0E0A1F]"
+        />
+        <label htmlFor="terms" className="text-sm text-gray-300">
+          You agree to our{" "}
+          <Link href="/terms" className="text-[#E5A9FF] hover:underline">
+            terms of service
+          </Link>
+        </label>
       </div>
-
-      {error && <div className="text-red-500 text-sm">{error}</div>}
 
       <Button
         type="submit"
         className="w-full bg-[#E5A9FF] hover:bg-[#D68FFF] text-[#0E0A1F] h-10 mt-4 btn-glow"
         disabled={isLoading}
       >
-        {isLoading ? "Signing up..." : "Sign Up"}
+        {isLoading ? "Signing up..." : "Sign up"}
       </Button>
     </form>
-  );
+  )
 }

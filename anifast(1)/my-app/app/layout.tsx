@@ -1,12 +1,10 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { SessionProvider } from "next-auth/react";
-import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
-  title: 'aniFast App',
-  description: 'Created with anifast',
-  generator: 'ani.dev',
+  title: 'v0 App',
+  description: 'Created with v0',
+  generator: 'v0.dev',
 }
 
 export default function RootLayout({
@@ -16,14 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-        <body>
-        <Providers>
-          {children}
-        </Providers>
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
-
-
-
