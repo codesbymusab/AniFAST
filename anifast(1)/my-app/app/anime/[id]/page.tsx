@@ -153,6 +153,20 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
 </div>
 
                 </div>
+
+                <div className="mt-4">
+  <h3 className="text-gray-400 text-sm mb-1">Tags</h3>
+  <div className="flex flex-wrap gap-2 mt-1">
+    {animeDetails?.Tags
+      ? animeDetails.Tags.split(", ").map((tag) => (
+          <Badge key={tag} className="bg-[#2A1F3C] hover:bg-[#3A2F4C] text-white">
+            {tag}
+          </Badge>
+        ))
+      : <p className="text-gray-400 text-sm">No tags available</p>}
+  </div>
+</div>
+
               </div>
             </div>
 
