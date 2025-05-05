@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     let query = "SELECT TOP " + limit + " * FROM Anime";
 
     if (filter === "new") {
-      query += " WHERE ReleaseDate >= DATEADD(month, -6, GETDATE())"; // Anime released in last 6 months
+      query += " WHERE ReleaseDate >= DATEADD(month, -6, GETDATE()) OR Status='RELEASING'"; // Anime released in last 6 months
     } else if (filter === "popular") {
       query += ""; 
     } else if (filter === "top-rated") {

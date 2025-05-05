@@ -3,8 +3,8 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 
 export const tabs = [
-  { name: "Top Anime", href: "/home?tab=top", id: "top" },
-  { name: "Seasonal Anime", href: "/home?tab=seasonal", id: "seasonal" },
+  { name: "Top Anime", href: "/home?tab=top-anime", id: "top" },
+  { name: "New Releases", href: "/home?tab=new-release", id: "seasonal" },
   { name: "Community", href: "/home?tab=community", id: "community" },
   { name: "Recommendations", href: "/home?tab=recommendations", id: "recommendations" },
   { name: "My List", href: "/home?tab=mylist", id: "mylist" },

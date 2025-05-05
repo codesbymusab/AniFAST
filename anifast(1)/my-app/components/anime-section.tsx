@@ -20,7 +20,9 @@ export function AnimeSection({ title, animeList, viewAllLink }: AnimeSectionProp
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {animeList.map((anime) => (
-          <AnimeCard key={anime.id} anime={anime} />
+           <Link key={anime.id} href={`/anime/${anime.id}`}>
+           <AnimeCard anime={anime} />
+         </Link>
         ))}
       </div>
     </div>

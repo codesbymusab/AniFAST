@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import { signIn } from "next-auth/react";
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
@@ -9,30 +9,29 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 
 export function LoginForm() {
-  const router = useRouter()
+  
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-
-    // Simulate login process
-    try {
-      // In a real app, you would call your authentication API here
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      console.log({ email, password, rememberMe })
-
-      // Redirect to dashboard or home page after successful login
-      // router.push('/dashboard')
-    } catch (error) {
-      console.error("Login failed:", error)
-    } finally {
-      setIsLoading(false)
+    e.preventDefault();
+    setIsLoading(true);
+   
+    const result = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
+    console.log(result);
+    if (result?.error) {
+      alert("Incorrect Username or Password");
+    } else {
+      window.location.href = "/home"; 
     }
-  }
+    setIsLoading(false);
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -82,3 +81,6 @@ export function LoginForm() {
     </form>
   )
 }
+
+
+

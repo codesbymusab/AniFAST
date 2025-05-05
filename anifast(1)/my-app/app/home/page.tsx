@@ -1,14 +1,37 @@
 "use client"
 
-import { useState } from "react"
+
 import { NavBar } from "@/components/nav-bar"
 import { Sidebar } from "@/components/sidebar"
 import { SearchBar } from "@/components/search-bar"
 import { Footer } from "@/components/footer"
 import { AnimeSection } from "@/components/anime-section"
 import type { Anime } from "@/components/anime-card"
+import { AnimeFetcher } from "@/server/fetchanimes"
+import { useEffect, useState } from "react";
+import type {AnimeItem} from "@/server/fetchanimes"
+
+
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
+
 
 export default function HomePage() {
+
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    console.log("Session:", session);
+    console.log("Status:", status);
+    if (status !== "loading" && !session) {
+      router.push("/login");
+    }
+  }, [session, status, router]);
+
+  
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const toggleSidebar = () => {
@@ -19,168 +42,43 @@ export default function HomePage() {
     setIsSidebarOpen(false)
   }
 
+
+
+
+  
   // ===== BACKEND INTEGRATION POINT =====
   // Replace these sample data arrays with data fetched from your backend API
   // You can use getServerSideProps, SWR, or React Query to fetch this data
   // Example with SWR:
   // const { data: topAnime, error: topAnimeError } = useSWR('/api/anime/top', fetcher)
-  // ===================================
 
-  // Sample data for Top Anime
-  const topAnime: Anime[] = [
-    {
-      id: 1,
-      title: "One Piece",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 9.1,
-      episodes: 1080,
-      status: "Airing",
-    },
-    {
-      id: 2,
-      title: "Fullmetal Alchemist: Brotherhood",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 9.0,
-      episodes: 64,
-      status: "Completed",
-    },
-    {
-      id: 3,
-      title: "Steins;Gate",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 9.0,
-      episodes: 24,
-      status: "Completed",
-    },
-    {
-      id: 4,
-      title: "Gintama",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.9,
-      episodes: 367,
-      status: "Completed",
-    },
-    {
-      id: 5,
-      title: "Attack on Titan",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.9,
-      episodes: 88,
-      status: "Completed",
-    },
-    {
-      id: 6,
-      title: "Hunter x Hunter (2011)",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 9.0,
-      episodes: 148,
-      status: "Completed",
-    },
-  ]
+  const [newAnime, setNewAnime] = useState<AnimeItem[]>([]);
+  const [popularAnime, setPopularAnime] = useState<AnimeItem[]>([]);
+  const [topRatedAnime, setTopRatedAnime] = useState<AnimeItem[]>([]);
 
-  // Sample data for Seasonal Anime
-  const seasonalAnime: Anime[] = [
-    {
-      id: 7,
-      title: "Enen no Shouboutai: San no Shou",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.6,
-      episodes: 12,
-      status: "Airing",
-    },
-    {
-      id: 8,
-      title: "Lazarus",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.8,
-      episodes: 13,
-      status: "Airing",
-    },
-    {
-      id: 9,
-      title: "Saikyou no Ousama, Nigome no Jinsei wa Nani wo Suru?",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.2,
-      episodes: 12,
-      status: "Airing",
-    },
-    {
-      id: 10,
-      title: "WIND BREAKER Season 2",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.5,
-      episodes: 12,
-      status: "Airing",
-    },
-    {
-      id: 11,
-      title: "Witch Watch",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.3,
-      episodes: 12,
-      status: "Airing",
-    },
-    {
-      id: 12,
-      title: "Kowloon Generic Romance",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.7,
-      episodes: 13,
-      status: "Airing",
-    },
-  ]
+  
+  useEffect(() => {
+    AnimeFetcher("new", 6).then(setNewAnime);
+  }, []);
 
-  // Sample data for Popular Anime
-  const popularAnime: Anime[] = [
-    {
-      id: 13,
-      title: "Demon Slayer: Entertainment District Arc",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.9,
-      episodes: 11,
-      status: "Completed",
-    },
-    {
-      id: 14,
-      title: "Jujutsu Kaisen",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.7,
-      episodes: 24,
-      status: "Completed",
-    },
-    {
-      id: 15,
-      title: "Chainsaw Man",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.8,
-      episodes: 12,
-      status: "Completed",
-    },
-    {
-      id: 16,
-      title: "Spy x Family",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.6,
-      episodes: 25,
-      status: "Completed",
-    },
-    {
-      id: 17,
-      title: "My Hero Academia Season 6",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.3,
-      episodes: 25,
-      status: "Completed",
-    },
-    {
-      id: 18,
-      title: "Mob Psycho 100 III",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.8,
-      episodes: 12,
-      status: "Completed",
-    },
-  ]
+  useEffect(() => {
+    AnimeFetcher("popular", 6).then(setPopularAnime);
+  }, []);
+
+  useEffect(() => {
+    AnimeFetcher("top-rated", 6).then(setTopRatedAnime);
+  }, []);
+
+  const mapAnime = (animeList: AnimeItem[]): Anime[] =>
+    animeList.map((anime) => ({
+      id: anime.AnimeID,
+      title: anime.Title,
+      image: anime.CoverImage ?? "/placeholder.svg?height=225&width=150",
+      score: anime.Rating ?? 0,
+      episodes: anime.Episodes,
+      status: anime.Status ?? "Unknown",
+    }));
+
 
   // Sample data for My List
   // ===== BACKEND INTEGRATION POINT =====
@@ -255,10 +153,11 @@ export default function HomePage() {
               that render based on data fetched from your backend
               You can also add loading states and error handling here
               ===================================== */}
-          <AnimeSection title="Top Anime" animeList={topAnime} viewAllLink="/top-anime" />
-          <AnimeSection title="Seasonal Anime" animeList={seasonalAnime} viewAllLink="/seasonal-anime" />
-          <AnimeSection title="Popular Anime" animeList={popularAnime} viewAllLink="/popular-anime" />
-          <AnimeSection title="My List" animeList={myListAnime} viewAllLink="/my-list" />
+              
+      <AnimeSection title="Newly Released" animeList={mapAnime(newAnime)} viewAllLink="/new-release" />
+      <AnimeSection title="Popular" animeList={mapAnime(popularAnime)} viewAllLink="/popular-anime" />
+      <AnimeSection title="Top Rated" animeList={mapAnime(topRatedAnime)} viewAllLink="/top-rated" />
+      <AnimeSection title="My List" animeList={myListAnime} viewAllLink="/my-list" />
         </div>
       </main>
 

@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button"
 
 const sidebarItems = [
   { name: "Home", href: "/home", icon: Home },
-  { name: "Top Anime", href: "/top-anime", icon: TrendingUp },
-  { name: "Seasonal Anime", href: "/seasonal-anime", icon: Calendar },
+  { name: "Popular", href: "/popular-anime", icon: Calendar },
+  { name: "Top Rated", href: "/top-rated", icon: TrendingUp },
   { name: "Community", href: "/community", icon: Users },
   { name: "Recommendations", href: "/recommendations", icon: Star },
   { name: "My List", href: "/my-list", icon: List },
