@@ -5,6 +5,7 @@ import "dotenv/config";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
+  
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -48,7 +49,8 @@ export const authOptions: NextAuthOptions = {
             return {
               id: user.UserID,        
               name: user.Username,        
-              email: user.Email,      
+              email: user.Email,    
+                
             };
           }
 

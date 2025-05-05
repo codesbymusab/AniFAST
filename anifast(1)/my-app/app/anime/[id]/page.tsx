@@ -13,6 +13,9 @@ import type {AnimeDetails } from "@/server/fetchanimdata"
 import { useEffect} from "react";
 import {AnimeFetcher} from "@/server/fetchanimdata"
 import Loading from "@/components/loading"
+import { handleAddToWatchlist } from "@/server/addtowatchlist" 
+import { handleAddToFavorite }from "@/server/addtofavorites"
+import { useSession } from "next-auth/react"
 
 interface AnimeDetailProps {
   params: Promise<{ id: string }>; // `params` is now a Promise
@@ -34,7 +37,8 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   const { id } = use(params); // Unwrap the params Promise
-
+  const { data: session, status } = useSession(); 
+  const email=session?.user?.email;
   useEffect(() => {
     const fetchAnimeDetail = async () => {
       try {
@@ -59,6 +63,7 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
   //   return <div>No anime data found.</div>;
   // }
 
+  console.log(animeDetails);
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">
@@ -84,12 +89,12 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
                   className="rounded-md shadow-lg border border-[#2A1F3C]"
                   priority
                 />
-
+                
                 <div className="mt-4 flex flex-col gap-2">
-                  <Button className="w-full bg-[#E5A9FF] hover:bg-[#D68FFF] text-[#0E0A1F]">
-                    <Plus className="mr-2 h-4 w-4" /> Add to List
+                  <Button onClick={() => handleAddToWatchlist(id,session?.user?.email??"")} className="w-full bg-[#E5A9FF] hover:bg-[#D68FFF] text-[#0E0A1F]">
+                    <Plus className="mr-2 h-4 w-4" /> Add to WatchList
                   </Button>
-                  <Button variant="outline" className="w-full border-[#E5A9FF] text-[#E5A9FF] hover:bg-[#2A1F3C]">
+                  <Button variant="outline" onClick={() => handleAddToFavorite(id,session?.user?.email??"")} className="w-full border-[#E5A9FF] text-[#E5A9FF] hover:bg-[#2A1F3C]">
                     <Heart className="mr-2 h-4 w-4" /> Favorite
                   </Button>
                 </div>
@@ -141,7 +146,7 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
 
                   <div>
                   <h3 className="text-gray-400 text-sm mb-1">Genres</h3>
-<div className="flex flex-wrap gap-2 mt-1">
+                  <div className="flex flex-wrap gap-2 mt-1">
   {animeDetails?.Genres
     ? animeDetails.Genres.split(", ").map((genre) => (
         <Badge key={genre} className="bg-[#2A1F3C] hover:bg-[#3A2F4C] text-white">
@@ -156,10 +161,26 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
               </div>
             </div>
 
+            </div>
+
+<div className="mt-4">
+<h3 className="text-gray-400 text-sm mb-1">Tags</h3>
+<div className="flex flex-wrap gap-2 mt-1">
+{animeDetails?.Tags
+? animeDetails.Tags.split(", ").map((tag) => (
+<Badge key={tag} className="bg-[#2A1F3C] hover:bg-[#3A2F4C] text-white">
+{tag}
+</Badge>
+))
+: <p className="text-gray-400 text-sm">No tags available</p>}
+</div>
+
+
             {/* Reviews Section */}
             <div className="mt-12 mb-8">
               <h2 className="text-2xl font-bold mb-6">Reviews</h2>
-              <AnimeReviews animeId={animeDetails?.AnimeID} />
+              <AnimeReviews animeId={id} />
+
             </div>
           </div>
         </div>
