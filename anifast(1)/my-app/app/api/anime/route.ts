@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   try {
     const pool = await connectDB();
     
-    let query = "SELECT TOP " + limit + " * FROM Anime";
+    let query = "SELECT TOP " + limit + " AnimeID,Title,Episodes,Status,Rating,CoverImage FROM Anime";
 
     if (filter === "new") {
       query += " WHERE ReleaseDate >= DATEADD(month, -6, GETDATE()) OR Status='RELEASING'"; // Anime released in last 6 months

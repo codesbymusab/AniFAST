@@ -14,7 +14,7 @@ import type {AnimeItem} from "@/server/fetchanimes"
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
+import Loading from "@/components/loading"
 
 
 export default function HomePage() {
@@ -51,22 +51,31 @@ export default function HomePage() {
   // You can use getServerSideProps, SWR, or React Query to fetch this data
   // Example with SWR:
   // const { data: topAnime, error: topAnimeError } = useSWR('/api/anime/top', fetcher)
-
   const [newAnime, setNewAnime] = useState<AnimeItem[]>([]);
   const [popularAnime, setPopularAnime] = useState<AnimeItem[]>([]);
   const [topRatedAnime, setTopRatedAnime] = useState<AnimeItem[]>([]);
-
-  
-  useEffect(() => {
-    AnimeFetcher("new", 6).then(setNewAnime);
-  }, []);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    AnimeFetcher("popular", 6).then(setPopularAnime);
-  }, []);
+    async function fetchAnimeData() {
+      try {
+        const [newList, popularList, topRatedList] = await Promise.all([
+          AnimeFetcher("new", 6),
+          AnimeFetcher("popular", 6),
+          AnimeFetcher("top-rated", 6),
+        ]);
 
-  useEffect(() => {
-    AnimeFetcher("top-rated", 6).then(setTopRatedAnime);
+        setNewAnime(newList);
+        setPopularAnime(popularList);
+        setTopRatedAnime(topRatedList);
+      } catch (error) {
+        console.error("Error fetching anime data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAnimeData();
   }, []);
 
   const mapAnime = (animeList: AnimeItem[]): Anime[] =>
@@ -136,6 +145,10 @@ export default function HomePage() {
       status: "Completed",
     },
   ]
+
+  // if (loading) {
+  //   return <Loading />
+  // }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">

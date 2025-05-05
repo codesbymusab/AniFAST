@@ -1,9 +1,10 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { connectDB } from "@/server/db"; // Assumes connectDB returns a pool connection
-import { Session } from "inspector";
+import "dotenv/config";
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -45,9 +46,9 @@ export const authOptions: NextAuthOptions = {
             
             // Ensure the returned object matches the session shape.
             return {
-              id: user.UserID,        // Adjust according to your DB column name
-              name: user.Username,        // Adjust according to your DB column name
-              email: user.Email,      // Adjust according to your DB column name
+              id: user.UserID,        
+              name: user.Username,        
+              email: user.Email,      
             };
           }
 
