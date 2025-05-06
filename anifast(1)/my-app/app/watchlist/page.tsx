@@ -8,7 +8,7 @@ import { Footer } from "@/components/footer"
 import { AnimeCard, type Anime } from "@/components/anime-card"
 import Link from "next/link"
 
-export default function MyListPage() {
+export default function WatchlistPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const toggleSidebar = () => {
@@ -24,16 +24,16 @@ export default function MyListPage() {
   // This would typically be fetched from your backend based on the logged-in user
   // Example with fetch:
   // useEffect(() => {
-  //   const fetchMyList = async () => {
-  //     const response = await fetch('/api/user/mylist');
+  //   const fetchWatchlist = async () => {
+  //     const response = await fetch('/api/user/watchlist');
   //     const data = await response.json();
   //     setAnimeList(data);
   //   };
-  //   fetchMyList();
+  //   fetchWatchlist();
   // }, []);
   // ===================================
 
-  // Sample data for My List
+  // Sample data for Watchlist
   const animeList: Anime[] = [
     {
       id: 19,
@@ -96,7 +96,7 @@ export default function MyListPage() {
             <SearchBar />
           </div>
 
-          <h1 className="text-3xl font-bold mb-6">My List</h1>
+          <h1 className="text-3xl font-bold mb-6">Watchlist</h1>
 
           {animeList.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
@@ -108,9 +108,9 @@ export default function MyListPage() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-xl text-gray-400">Your list is empty</p>
+              <p className="text-xl text-gray-400">Your watchlist is empty</p>
               <p className="text-gray-500 mt-2">
-                Add anime to your list by clicking the "Add to List" button on anime pages
+                Add anime to your watchlist by clicking the "Add to Watchlist" button on anime pages
               </p>
             </div>
           )}
