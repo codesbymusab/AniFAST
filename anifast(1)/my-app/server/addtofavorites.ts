@@ -4,7 +4,7 @@ export async function handleAddToFavorite(animeId: string,userEmail:string) {
         
 
     try {
-      const response = await fetch("/api/favorites", {
+      const response = await fetch("/api/anime/animedetails/favorites", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ animeId,userEmail}),

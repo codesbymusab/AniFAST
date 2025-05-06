@@ -15,7 +15,8 @@ export interface AnimeDetails {
   }
   
   export async function AnimeFetcher(animeid: string): Promise<AnimeDetails | null> {
-    const res = await fetch(`/api/animedetails?animeid=${animeid}`);
+    
+    const res = await fetch(`/api/anime/animedetails?animeid=${animeid}`);
   
     if (!res.ok) {
       if (res.status === 404) {

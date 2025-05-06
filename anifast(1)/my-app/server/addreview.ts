@@ -2,7 +2,7 @@ import type { Review } from "@/components/anime-reviews";
 
 export async function postReview(review: Review): Promise<any> {
   try {
-    const response = await fetch("/api/postreview", {
+    const response = await fetch("/api/anime/animedetails/postreview", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

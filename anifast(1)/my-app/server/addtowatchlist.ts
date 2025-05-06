@@ -1,7 +1,7 @@
 export async function handleAddToWatchlist(animeId: string,userEmail:string) {
 
     try {
-      const response = await fetch("/api/watchlist", {
+      const response = await fetch("/api/anime/animedetails/watchlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ animeId,userEmail}),
