@@ -7,7 +7,7 @@ export const tabs = [
   { name: "New Releases", href: "/home?tab=new-release", id: "seasonal" },
   { name: "Community", href: "/home?tab=community", id: "community" },
   { name: "Recommendations", href: "/home?tab=recommendations", id: "recommendations" },
-  { name: "My List", href: "/home?tab=mylist", id: "mylist" },
+  { name: "Watchlist", href: "/home?tab=watchlist", id: "mylist" },
 ]
 
 interface NavigationTabsProps {

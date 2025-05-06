@@ -89,7 +89,7 @@ export default function HomePage() {
     }));
 
 
-  // Sample data for My List
+  // Sample data for watchlist (my list)
   // ===== BACKEND INTEGRATION POINT =====
   // This would typically be fetched from your backend based on the logged-in user
   // You would need authentication and user-specific API endpoints
@@ -170,7 +170,7 @@ export default function HomePage() {
       <AnimeSection title="Newly Released" animeList={mapAnime(newAnime)} viewAllLink="/new-release" />
       <AnimeSection title="Popular" animeList={mapAnime(popularAnime)} viewAllLink="/popular-anime" />
       <AnimeSection title="Top Rated" animeList={mapAnime(topRatedAnime)} viewAllLink="/top-rated" />
-      <AnimeSection title="My List" animeList={myListAnime} viewAllLink="/my-list" />
+      <AnimeSection title="Watchlist" animeList={myListAnime} viewAllLink="/watchlist" />
         </div>
       </main>
 

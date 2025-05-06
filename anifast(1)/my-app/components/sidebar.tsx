@@ -3,16 +3,17 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Home, TrendingUp, Calendar, Users, Star, List, X } from "lucide-react"
+import { Home, TrendingUp, Calendar, Users, Star, List, Heart, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 const sidebarItems = [
   { name: "Home", href: "/home", icon: Home },
-  { name: "Popular", href: "/popular-anime", icon: Calendar },
   { name: "Top Rated", href: "/top-rated", icon: TrendingUp },
-  { name: "Community", href: "/community", icon: Users },
+  { name: "New Release", href: "/new-release", icon: Calendar },
+  { name: "Popular Anime", href: "/popular-anime", icon: Users },
   { name: "Recommendations", href: "/recommendations", icon: Star },
-  { name: "My List", href: "/my-list", icon: List },
+  { name: "Watchlist", href: "/watchlist", icon: List },
+  { name: "Favorites", href: "/favorites", icon: Heart },
 ]
 
 interface SidebarProps {
@@ -21,6 +22,11 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const pathname = usePathname()
+
+  return (
+    <>
+      {/* Overlay - visible only when  {
   const pathname = usePathname()
 
   return (
