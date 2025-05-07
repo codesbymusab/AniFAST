@@ -21,6 +21,7 @@ export default function HomePage() {
 
   const { data: session, status } = useSession();
   const router = useRouter();
+  let filter:string ;
 
   useEffect(() => {
     console.log("Session:", session);
@@ -28,9 +29,9 @@ export default function HomePage() {
     if (status !== "loading" && !session) {
       router.push("/login");
     }
+    
   }, [session, status, router]);
 
-  
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
@@ -54,20 +55,26 @@ export default function HomePage() {
   const [newAnime, setNewAnime] = useState<AnimeItem[]>([]);
   const [popularAnime, setPopularAnime] = useState<AnimeItem[]>([]);
   const [topRatedAnime, setTopRatedAnime] = useState<AnimeItem[]>([]);
+  const [watchlistAnime, setWatchlistAnime] = useState<AnimeItem[]>([]);
   const [loading, setLoading] = useState(true);
+  
+ 
 
   useEffect(() => {
+
     async function fetchAnimeData() {
       try {
         const [newList, popularList, topRatedList] = await Promise.all([
           AnimeFetcher("new", 6),
           AnimeFetcher("popular", 6),
           AnimeFetcher("top-rated", 6),
+         
         ]);
 
         setNewAnime(newList);
         setPopularAnime(popularList);
         setTopRatedAnime(topRatedList);
+      
       } catch (error) {
         console.error("Error fetching anime data:", error);
       } finally {
@@ -95,56 +102,6 @@ export default function HomePage() {
   // You would need authentication and user-specific API endpoints
   // Example: const { data: myList } = useSWR('/api/user/mylist', fetcher)
   // ===================================
-  const myListAnime: Anime[] = [
-    {
-      id: 19,
-      title: "Vinland Saga",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.8,
-      episodes: 24,
-      status: "Completed",
-    },
-    {
-      id: 20,
-      title: "Made in Abyss",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.7,
-      episodes: 13,
-      status: "Completed",
-    },
-    {
-      id: 21,
-      title: "Violet Evergarden",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.9,
-      episodes: 13,
-      status: "Completed",
-    },
-    {
-      id: 22,
-      title: "Mushoku Tensei: Jobless Reincarnation",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.7,
-      episodes: 23,
-      status: "Completed",
-    },
-    {
-      id: 23,
-      title: "86 EIGHTY-SIX",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.6,
-      episodes: 23,
-      status: "Completed",
-    },
-    {
-      id: 24,
-      title: "Oshi no Ko",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.9,
-      episodes: 11,
-      status: "Completed",
-    },
-  ]
 
   // if (loading) {
   //   return <Loading />
@@ -170,7 +127,7 @@ export default function HomePage() {
       <AnimeSection title="Newly Released" animeList={mapAnime(newAnime)} viewAllLink="/new-release" />
       <AnimeSection title="Popular" animeList={mapAnime(popularAnime)} viewAllLink="/popular-anime" />
       <AnimeSection title="Top Rated" animeList={mapAnime(topRatedAnime)} viewAllLink="/top-rated" />
-      <AnimeSection title="Watchlist" animeList={myListAnime} viewAllLink="/watchlist" />
+      <AnimeSection title="Watchlist" animeList={mapAnime(watchlistAnime)} viewAllLink="/watchlist" />
         </div>
       </main>
 
