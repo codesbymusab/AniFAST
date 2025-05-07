@@ -9,6 +9,8 @@ import { AnimeSection } from "@/components/anime-section"
 import type { Anime } from "@/components/anime-card"
 import { AnimeFetcher } from "@/server/fetchanimes"
 import { useEffect, useState } from "react";
+import { WelcomeBanner } from "@/components/welcome-banner"
+import { RecentReviews } from "@/components/recent-reviews"
 import type {AnimeItem} from "@/server/fetchanimes"
 
 
@@ -157,6 +159,8 @@ export default function HomePage() {
 
       <main className={`flex-grow transition-all duration-300 pt-24 px-6 pb-6 ${isSidebarOpen ? "ml-64" : "mx-auto"}`}>
         <div className={`max-w-6xl ${!isSidebarOpen && "mx-auto"}`}>
+          {/* Welcome Banner */}
+          <WelcomeBanner />
           <div className="mb-8">
             <SearchBar />
           </div>
@@ -171,6 +175,8 @@ export default function HomePage() {
       <AnimeSection title="Popular" animeList={mapAnime(popularAnime)} viewAllLink="/popular-anime" />
       <AnimeSection title="Top Rated" animeList={mapAnime(topRatedAnime)} viewAllLink="/top-rated" />
       <AnimeSection title="Watchlist" animeList={myListAnime} viewAllLink="/watchlist" />
+      {/* Recent Reviews Section */}
+      <RecentReviews />
         </div>
       </main>
 
