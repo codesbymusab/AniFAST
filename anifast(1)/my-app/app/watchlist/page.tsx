@@ -7,10 +7,15 @@ import { SearchBar } from "@/components/search-bar"
 import { Footer } from "@/components/footer"
 import { AnimeCard, type Anime } from "@/components/anime-card"
 import Link from "next/link"
+import { AnimeItem } from "@/server/fetchanimes"
+import { useEffect } from "react"
+import { AnimeFetcher } from "@/server/fetchanimes"
+import { useSession } from "next-auth/react"
 
 export default function WatchlistPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-
+  const [isloading, setLoading] = useState(true);
+  const { data: session, status } = useSession(); 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen)
   }
@@ -19,71 +24,26 @@ export default function WatchlistPage() {
     setIsSidebarOpen(false)
   }
 
-  // ===== BACKEND INTEGRATION POINT =====
-  // Replace this sample data with data fetched from your backend API
-  // This would typically be fetched from your backend based on the logged-in user
-  // Example with fetch:
-  // useEffect(() => {
-  //   const fetchWatchlist = async () => {
-  //     const response = await fetch('/api/user/watchlist');
-  //     const data = await response.json();
-  //     setAnimeList(data);
-  //   };
-  //   fetchWatchlist();
-  // }, []);
-  // ===================================
+ const [newAnime, setWatchlistAnime] = useState<AnimeItem[]>([]);
+ 
+    const filter="watchlist"+ session?.user?.email;
+    useEffect(() => {
+      AnimeFetcher(filter,0).then(setWatchlistAnime);
+      setLoading(true);
+    }, []);
+  
 
-  // Sample data for Watchlist
-  const animeList: Anime[] = [
-    {
-      id: 19,
-      title: "Vinland Saga",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.8,
-      episodes: 24,
-      status: "Completed",
-    },
-    {
-      id: 20,
-      title: "Made in Abyss",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.7,
-      episodes: 13,
-      status: "Completed",
-    },
-    {
-      id: 21,
-      title: "Violet Evergarden",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.9,
-      episodes: 13,
-      status: "Completed",
-    },
-    {
-      id: 22,
-      title: "Mushoku Tensei: Jobless Reincarnation",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.7,
-      episodes: 23,
-      status: "Completed",
-    },
-    {
-      id: 23,
-      title: "86 EIGHTY-SIX",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.6,
-      episodes: 23,
-      status: "Completed",
-    },
-    {
-      id: 24,
-      title: "Oshi no Ko",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.9,
-      episodes: 11,
-      status: "Completed",
-    },
-  ]
+   
+      const animeList=newAnime.map((anime) => ({
+        id: anime.AnimeID,
+        title: anime.Title,
+        image: anime.CoverImage ?? "/placeholder.svg?height=225&width=150",
+        score: anime.Rating ?? 0,
+        episodes: anime.Episodes,
+        status: anime.Status ?? "Unknown",
+      }));
+
+      
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">
@@ -98,7 +58,7 @@ export default function WatchlistPage() {
 
           <h1 className="text-3xl font-bold mb-6">Watchlist</h1>
 
-          {animeList.length > 0 ? (
+          {(animeList.length > 0||isloading)  ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
               {animeList.map((anime) => (
                 <Link key={anime.id} href={`/anime/${anime.id}`}>

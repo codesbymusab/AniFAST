@@ -1,16 +1,20 @@
 "use client"
 
-import { useState } from "react"
+import { useState,useEffect } from "react"
 import { NavBar } from "@/components/nav-bar"
 import { Sidebar } from "@/components/sidebar"
 import { SearchBar } from "@/components/search-bar"
 import { Footer } from "@/components/footer"
 import { AnimeCard, type Anime } from "@/components/anime-card"
 import Link from "next/link"
+import { AnimeItem } from "@/server/fetchanimes"
+import { AnimeFetcher } from "@/server/fetchanimes"
+import { useSession } from "next-auth/react"
 
 export default function FavoritesPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-
+  const [isloading, setLoading] = useState(true);
+  const { data: session, status } = useSession(); 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen)
   }
@@ -19,55 +23,25 @@ export default function FavoritesPage() {
     setIsSidebarOpen(false)
   }
 
-  // ===== BACKEND INTEGRATION POINT =====
-  // Replace this sample data with data fetched from your backend API
-  // This would typically be fetched from your backend based on the logged-in user
-  // Example with fetch:
-  // useEffect(() => {
-  //   const fetchFavorites = async () => {
-  //     const response = await fetch('/api/user/favorites');
-  //     const data = await response.json();
-  //     setAnimeList(data);
-  //   };
-  //   fetchFavorites();
-  // }, []);
-  // ===================================
+ const [newAnime, setWatchlistAnime] = useState<AnimeItem[]>([]);
+ 
+    const filter="favorites"+ session?.user?.email;
+    useEffect(() => {
+      AnimeFetcher(filter,0).then(setWatchlistAnime);
+      setLoading(true);
+    }, []);
+  
 
-  // Sample data for Favorites
-  const animeList: Anime[] = [
-    {
-      id: 25,
-      title: "Fullmetal Alchemist: Brotherhood",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 9.1,
-      episodes: 64,
-      status: "Completed",
-    },
-    {
-      id: 26,
-      title: "Steins;Gate",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 9.0,
-      episodes: 24,
-      status: "Completed",
-    },
-    {
-      id: 27,
-      title: "Hunter x Hunter (2011)",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 9.0,
-      episodes: 148,
-      status: "Completed",
-    },
-    {
-      id: 28,
-      title: "Attack on Titan",
-      image: "/placeholder.svg?height=225&width=150",
-      score: 8.9,
-      episodes: 75,
-      status: "Completed",
-    },
-  ]
+   
+      const animeList=newAnime.map((anime) => ({
+        id: anime.AnimeID,
+        title: anime.Title,
+        image: anime.CoverImage ?? "/placeholder.svg?height=225&width=150",
+        score: anime.Rating ?? 0,
+        episodes: anime.Episodes,
+        status: anime.Status ?? "Unknown",
+      }));
+
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">

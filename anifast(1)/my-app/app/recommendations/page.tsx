@@ -7,10 +7,17 @@ import { SearchBar } from "@/components/search-bar"
 import { Footer } from "@/components/footer"
 import { AnimeCard } from "@/components/anime-card"
 import Link from "next/link"
+import { AnimeItem } from "@/server/fetchanimes"
+import { useEffect } from "react"
+import { AnimeFetcher } from "@/server/fetchanimes"
+import { useSession } from "next-auth/react"
+import Loading from "./loading"
 
 export default function RecommendationsPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-
+  const [isloading, setLoading] = useState(true);
+  const { data: session, status } = useSession(); 
+  
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen)
   }
@@ -19,142 +26,80 @@ export default function RecommendationsPage() {
     setIsSidebarOpen(false)
   }
 
-  // ===== BACKEND INTEGRATION POINT =====
-  // Replace this sample data with data fetched from your backend API
-  // This would typically be fetched from your backend based on the logged-in user's preferences
-  // Example with fetch:
-  // useEffect(() => {
-  //   const fetchRecommendations = async () => {
-  //     const response = await fetch('/api/recommendations');
-  //     const data = await response.json();
-  //     setRecommendations(data);
-  //   };
-  //   fetchRecommendations();
-  // }, []);
-  // ===================================
+ const [newAnime1, setWatchlistAnime] = useState<AnimeItem[]>([]);
+ const [newAnime2, setFavoritesAnime] = useState<AnimeItem[]>([]);
+ const [newAnime3, setFriendsAnime] = useState<AnimeItem[]>([]);
 
-  // Sample data for recommendations
+  
+    const filter1="recommendation1"+ session?.user?.email;
+    const filter2="recommendation2"+ session?.user?.email;
+    const filter3="recommendation3"+ session?.user?.email;
+
+    
+
+    useEffect(() => {
+      setTimeout(() => {
+        
+      }, 1000);
+      AnimeFetcher(filter1,0).then(setWatchlistAnime);
+      AnimeFetcher(filter2,0).then(setFavoritesAnime);
+      AnimeFetcher(filter3,0).then(setFriendsAnime);
+      setLoading(true);
+      
+    }, []);
+  
+
+   
+      const wanimeList=newAnime1.map((anime) => ({
+        id: anime.AnimeID,
+        title: anime.Title,
+        image: anime.CoverImage ?? "/placeholder.svg?height=225&width=150",
+        score: anime.Rating ?? 0,
+        episodes: anime.Episodes,
+        status: anime.Status ?? "Unknown",
+      }));
+
+      const fanimeList=newAnime2.map((anime) => ({
+        id: anime.AnimeID,
+        title: anime.Title,
+        image: anime.CoverImage ?? "/placeholder.svg?height=225&width=150",
+        score: anime.Rating ?? 0,
+        episodes: anime.Episodes,
+        status: anime.Status ?? "Unknown",
+      }));
+
+      const frnanimeList=newAnime3.map((anime) => ({
+        id: anime.AnimeID,
+        title: anime.Title,
+        image: anime.CoverImage ?? "/placeholder.svg?height=225&width=150",
+        score: anime.Rating ?? 0,
+        episodes: anime.Episodes,
+        status: anime.Status ?? "Unknown",
+      }));
+
   const recommendations = [
     {
       category: "Based on your watchlist",
-      animeList: [
-        {
-          id: 29,
-          title: "Demon Slayer",
-          image: "/placeholder.svg?height=225&width=150",
-          score: 8.7,
-          episodes: 26,
-          status: "Completed",
-        },
-        {
-          id: 30,
-          title: "Jujutsu Kaisen",
-          image: "/placeholder.svg?height=225&width=150",
-          score: 8.6,
-          episodes: 24,
-          status: "Completed",
-        },
-        {
-          id: 31,
-          title: "Chainsaw Man",
-          image: "/placeholder.svg?height=225&width=150",
-          score: 8.5,
-          episodes: 12,
-          status: "Completed",
-        },
-        {
-          id: 32,
-          title: "Spy x Family",
-          image: "/placeholder.svg?height=225&width=150",
-          score: 8.6,
-          episodes: 25,
-          status: "Completed",
-        },
-        {
-          id: 33,
-          title: "Mob Psycho 100",
-          image: "/placeholder.svg?height=225&width=150",
-          score: 8.7,
-          episodes: 25,
-          status: "Completed",
-        },
-      ],
+      animeList: wanimeList
+        
     },
     {
-      category: "Because you liked Attack on Titan",
-      animeList: [
-        {
-          id: 34,
-          title: "Vinland Saga",
-          image: "/placeholder.svg?height=225&width=150",
-          score: 8.8,
-          episodes: 24,
-          status: "Completed",
-        },
-        {
-          id: 35,
-          title: "Parasyte",
-          image: "/placeholder.svg?height=225&width=150",
-          score: 8.4,
-          episodes: 24,
-          status: "Completed",
-        },
-        {
-          id: 36,
-          title: "Tokyo Ghoul",
-          image: "/placeholder.svg?height=225&width=150",
-          score: 7.9,
-          episodes: 12,
-          status: "Completed",
-        },
-        {
-          id: 37,
-          title: "Kabaneri of the Iron Fortress",
-          image: "/placeholder.svg?height=225&width=150",
-          score: 7.2,
-          episodes: 12,
-          status: "Completed",
-        },
-      ],
+      category: "Baased on your Likes",
+      animeList: fanimeList
+       
     },
     {
-      category: "Popular in your region",
-      animeList: [
-        {
-          id: 38,
-          title: "One Piece",
-          image: "/placeholder.svg?height=225&width=150",
-          score: 8.7,
-          episodes: 1000,
-          status: "Ongoing",
-        },
-        {
-          id: 39,
-          title: "Naruto",
-          image: "/placeholder.svg?height=225&width=150",
-          score: 8.3,
-          episodes: 220,
-          status: "Completed",
-        },
-        {
-          id: 40,
-          title: "Dragon Ball Z",
-          image: "/placeholder.svg?height=225&width=150",
-          score: 8.5,
-          episodes: 291,
-          status: "Completed",
-        },
-        {
-          id: 41,
-          title: "Bleach",
-          image: "/placeholder.svg?height=225&width=150",
-          score: 8.1,
-          episodes: 366,
-          status: "Completed",
-        },
-      ],
-    },
+      category: "Your Friends are Watching",
+      animeList: frnanimeList
+      
+    }
+
   ]
+
+  if (status === "loading") {
+    return <Loading/>
+  }
+
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">
