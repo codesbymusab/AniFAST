@@ -1,10 +1,21 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { Home, TrendingUp, Calendar, Users, Star, List, Heart, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import {
+  Home,
+  TrendingUp,
+  Calendar,
+  Users,
+  Star,
+  List,
+  Heart,
+  X,
+  Menu,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 const sidebarItems = [
   { name: "Home", href: "/home", icon: Home },
@@ -14,67 +25,73 @@ const sidebarItems = [
   { name: "Recommendations", href: "/recommendations", icon: Star },
   { name: "Watchlist", href: "/watchlist", icon: List },
   { name: "Favorites", href: "/favorites", icon: Heart },
-]
+];
 
-interface SidebarProps {
-  isOpen: boolean
-  onClose: () => void
-}
-
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
-  const pathname = usePathname()
-
-  return (
-    <>
-      {/* Overlay - visible only when  {
-  const pathname = usePathname()
+export function Sidebar() {
+  // Determines if the dock is expanded (shows labels)
+  const [isExpanded, setIsExpanded] = useState(false);
+  // Tracks the item currently being hovered (used for the overlay tooltip)
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const pathname = usePathname();
 
   return (
-    <>
-      {/* Overlay - visible only when sidebar is open on mobile */}
-      {isOpen && <div className="fixed inset-0 bg-black/50 z-30 md:hidden" onClick={onClose} />}
+    <div
+      className={cn(
+        "h-screen bg-[#0E0818] border-r border-[#2A1F3C] fixed left-0 top-0 pt-16 z-30 transition-all ease-in-out",
+        isExpanded ? "w-64" : "w-16"
+      )}
+    >
+      <div className="px-2 py-4">
+        <ul className="space-y-2">
+          {sidebarItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <li
+                key={item.name}
+                className="relative" // relative to position the overlay tooltip
+                onMouseEnter={() => setHoveredItem(item.name)}
+                onMouseLeave={() => setHoveredItem(null)}
+              >
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "flex items-center px-4 py-3 text-sm rounded-md transition-colors w-full",
+                    isActive
+                      ? "bg-[#6B21A8] text-white"
+                      : "text-gray-300 hover:bg-[#1F1B3C] hover:text-white",
+                    isExpanded ? "justify-start" : "justify-center"
+                  )}
+                >
+                  <item.icon className="h-5 w-5" />
+                  {isExpanded && <span className="ml-3">{item.name}</span>}
+                </Link>
+                {/* Show overlay tooltip when dock is collapsed and this item is hovered.
+                    You can customize the tooltip content as needed. */}
+                {!isExpanded && hoveredItem === item.name && (
+                  <div className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded shadow">
+                    {item.name}
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
 
-      {/* Sidebar */}
-      <div
-        data-sidebar="true"
-        className={cn(
-          "w-64 h-screen bg-[#0A0818] border-r border-[#2A1F3C] fixed left-0 top-0 pt-16 z-30 transition-transform duration-300 ease-in-out",
-          isOpen ? "translate-x-0" : "-translate-x-full",
-        )}
-      >
-        {/* Close button */}
+      {/* Toggle Button at the bottom */}
+      <div className="absolute bottom-4 w-full flex justify-center">
         <Button
+          onClick={() => setIsExpanded(!isExpanded)}
           variant="ghost"
           size="icon"
-          onClick={onClose}
-          className="absolute right-4 top-4 text-gray-400 hover:text-white hover:bg-[#2A1F3C]"
         >
-          <X className="h-5 w-5" />
-          <span className="sr-only">Close sidebar</span>
+          {isExpanded ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <Menu className="h-5 w-5" />
+          )}
         </Button>
-
-        <div className="px-4 py-6">
-          <ul className="space-y-2">
-            {sidebarItems.map((item) => {
-              const isActive = pathname === item.href
-              return (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      "flex items-center px-4 py-3 text-sm rounded-md transition-colors",
-                      isActive ? "bg-[#6B21A8] text-white" : "text-gray-300 hover:bg-[#1F1B3C] hover:text-white",
-                    )}
-                  >
-                    <item.icon className="h-5 w-5 mr-3" />
-                    <span>{item.name}</span>
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
       </div>
-    </>
-  )
+    </div>
+  );
 }

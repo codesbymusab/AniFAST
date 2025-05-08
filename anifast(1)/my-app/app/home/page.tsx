@@ -48,16 +48,10 @@ export default function HomePage() {
 
 
 
-  
-  // ===== BACKEND INTEGRATION POINT =====
-  // Replace these sample data arrays with data fetched from your backend API
-  // You can use getServerSideProps, SWR, or React Query to fetch this data
-  // Example with SWR:
-  // const { data: topAnime, error: topAnimeError } = useSWR('/api/anime/top', fetcher)
+
   const [newAnime, setNewAnime] = useState<AnimeItem[]>([]);
   const [popularAnime, setPopularAnime] = useState<AnimeItem[]>([]);
   const [topRatedAnime, setTopRatedAnime] = useState<AnimeItem[]>([]);
-  const [watchlistAnime, setWatchlistAnime] = useState<AnimeItem[]>([]);
   const [loading, setLoading] = useState(true);
   
  
@@ -131,7 +125,7 @@ export default function HomePage() {
       <AnimeSection title="Newly Released" animeList={mapAnime(newAnime)} viewAllLink="/new-release" />
       <AnimeSection title="Popular" animeList={mapAnime(popularAnime)} viewAllLink="/popular-anime" />
       <AnimeSection title="Top Rated" animeList={mapAnime(topRatedAnime)} viewAllLink="/top-rated" />
-      <AnimeSection title="Watchlist" animeList={mapAnime(watchlistAnime)} viewAllLink="/watchlist" />
+  
       {/* Recent Reviews Section */}
       <RecentReviews />
         </div>
