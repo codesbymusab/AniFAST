@@ -36,18 +36,22 @@ export default function UserDashboardPage() {
   })
 
   const [friends, setFriends] = useState([
-    { id: 1, name: "Sarah", image: "/friend1-avatar.png", watching: "Attack on Titan" },
-    { id: 2, name: "Mike", image: "/friend2-avatar.png", watching: "Jujutsu Kaisen" },
-    { id: 3, name: "Emma", image: "/friend3-avatar.png", watching: "" },
-    { id: 4, name: "Alex", image: "/friend4-avatar.png", watching: "Demon Slayer" }
+    { id: 1, name: "Sarah", image: "/friend1-avatar.png", status: "Approved" },
+    { id: 2, name: "Mike", image: "/friend2-avatar.png", status: "Pending" },
+    { id: 3, name: "Emma", image: "/friend3-avatar.png", status: "Pending" },
+    { id: 4, name: "Alex", image: "/friend4-avatar.png",status: "Approved" }
   ])
 
-  const [recommendations, setRecommendations] = useState<AnimeItem[]>([])
+
 
   const [posts, setPosts] = useState([
     { id: 1, title: "My Top 5 Romance Anime", content: "Here are some heartwarming picks: Clannad, Toradora, and more~!" },
     { id: 2, title: "Winter Season Watchlist", content: "So hyped for Solo Leveling and Haikyuu movies!!" }
   ])
+
+  //Replace with watchlist and favorites fecthing functions
+  const [recommendations, setRecommendations] = useState<AnimeItem[]>([])
+  //const [recommendations, setRecommendations] = useState<AnimeItem[]>([])
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -109,18 +113,6 @@ export default function UserDashboardPage() {
               <p className="text-gray-300">{user.bio}</p>
             </div>
 
-            {/* Recent Activity */}
-            <div className="p-6 rounded-xl bg-[#1A1338]">
-              <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-              <p className="text-gray-300 mb-4">Last watched: {recentActivity.lastWatched} ({recentActivity.episode})</p>
-              <h3 className="font-medium text-white mb-2">Favourites</h3>
-              <ul className="list-disc list-inside text-gray-300 space-y-1">
-                {recentActivity.favourites.map((anime, idx) => (
-                  <li key={idx}>{anime}</li>
-                ))}
-              </ul>
-            </div>
-
             {/* Friends */}
             <div className="p-6 rounded-xl bg-[#1A1338]">
               <h2 className="text-xl font-semibold mb-4">Friends</h2>
@@ -134,8 +126,8 @@ export default function UserDashboardPage() {
                       </Avatar>
                       <div>
                         <p className="font-medium">{friend.name}</p>
-                        {friend.watching && (
-                          <p className="text-xs text-gray-400 mt-1">Watching: {friend.watching}</p>
+                        {friend.status && (
+                          <p className="text-xs text-gray-400 mt-1">Status: {friend.status}</p>
                         )}
                       </div>
                     </div>
@@ -148,7 +140,7 @@ export default function UserDashboardPage() {
           {/* Posts Section */}
           <div className="mb-10">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">`Your Posts</h2>
+              <h2 className="text-2xl font-bold">Your Posts</h2>
               <Dialog>
                 <DialogTrigger asChild>
                   <Button className="bg-[#6B21A8] hover:bg-[#7C3AED]">New Post</Button>
@@ -172,10 +164,25 @@ export default function UserDashboardPage() {
               ))}
             </div>
           </div>
+          
+             {/* Posts Section */}
+             <div className="mb-10">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold">Your Reviews</h2>
+            </div>
+            <div className="space-y-4">
+              {posts.map(post => (
+                <div key={post.id} className="p-4 bg-[#1A1338] rounded-xl">
+                  <h3 className="text-lg font-semibold">{post.title}</h3>
+                  <p className="text-gray-300">{post.content}</p>
+                </div>
+              ))}
+            </div>
+          </div>
 
-          {/* Recommendations Section */}
+          {/* Watchlist Section */}
           <div className="mb-6">
-            <h2 className="text-2xl font-bold mb-4">`Watchlist</h2>
+            <h2 className="text-2xl font-bold mb-4">Watchlist</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
               {animeList.map((anime) => (
                 <Link key={anime.id} href={`/anime/${anime.id}`}>
@@ -184,6 +191,19 @@ export default function UserDashboardPage() {
               ))}
             </div>
           </div>
+
+           {/* Favorites Section */}
+           <div className="mb-6">
+            <h2 className="text-2xl font-bold mb-4">Favorites</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+              {animeList.map((anime) => (
+                <Link key={anime.id} href={`/anime/${anime.id}`}>
+                  <AnimeCard anime={anime} />
+                </Link>
+              ))}
+            </div>
+          </div>
+
         </div>
       </main>
 
