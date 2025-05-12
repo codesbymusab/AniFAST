@@ -13,6 +13,7 @@ import {
   Heart,
   X,
   Menu,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -21,16 +22,15 @@ const sidebarItems = [
   { name: "Home", href: "/home", icon: Home },
   { name: "Top Rated", href: "/top-rated", icon: TrendingUp },
   { name: "New Release", href: "/new-release", icon: Calendar },
-  { name: "Popular Anime", href: "/popular-anime", icon: Users },
+  { name: "Popular Anime", href: "/popular-anime", icon: Globe }, 
   { name: "Recommendations", href: "/recommendations", icon: Star },
   { name: "Watchlist", href: "/watchlist", icon: List },
   { name: "Favorites", href: "/favorites", icon: Heart },
+  { name: "Community", href: "/community", icon: Users }, 
 ];
 
 export function Sidebar() {
-  // Determines if the dock is expanded (shows labels)
   const [isExpanded, setIsExpanded] = useState(false);
-  // Tracks the item currently being hovered (used for the overlay tooltip)
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const pathname = usePathname();
 
@@ -48,7 +48,7 @@ export function Sidebar() {
             return (
               <li
                 key={item.name}
-                className="relative" // relative to position the overlay tooltip
+                className="relative"
                 onMouseEnter={() => setHoveredItem(item.name)}
                 onMouseLeave={() => setHoveredItem(null)}
               >
@@ -65,8 +65,6 @@ export function Sidebar() {
                   <item.icon className="h-5 w-5" />
                   {isExpanded && <span className="ml-3">{item.name}</span>}
                 </Link>
-                {/* Show overlay tooltip when dock is collapsed and this item is hovered.
-                    You can customize the tooltip content as needed. */}
                 {!isExpanded && hoveredItem === item.name && (
                   <div className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded shadow">
                     {item.name}
@@ -78,7 +76,6 @@ export function Sidebar() {
         </ul>
       </div>
 
-      {/* Toggle Button at the bottom */}
       <div className="absolute bottom-4 w-full flex justify-center">
         <Button
           onClick={() => setIsExpanded(!isExpanded)}

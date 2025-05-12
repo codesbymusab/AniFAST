@@ -10,6 +10,7 @@ import Link from "next/link"
 import { AnimeFetcher } from "@/server/fetchanimes"
 import { useEffect} from "react";
 import type {AnimeItem} from "@/server/fetchanimes"
+import Loading from "@/components/loading"
 
 export default function SeasonalAnimePage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -38,14 +39,28 @@ export default function SeasonalAnimePage() {
   // Sample data for Seasonal Anime
   
     const [newAnime, setNewAnime] = useState<AnimeItem[]>([]);
-
+    const [loading, setLoading] = useState(true);
     
-    useEffect(() => {
-      AnimeFetcher("new", 18).then(setNewAnime);
-    }, []);
-  
-  
    
+
+    useEffect(() => {
+  const fetchNewAnime = async () => {
+    try {
+      const data = await AnimeFetcher("new", 18);
+      setNewAnime(data);
+    } catch (error) {
+      console.error("Failed to fetch new anime:", error);
+    } finally {
+      setLoading(false); 
+    }
+  };
+
+  fetchNewAnime();
+}, []);
+
+  
+  
+    
       const animeList=newAnime.map((anime) => ({
         id: anime.AnimeID,
         title: anime.Title,
@@ -55,7 +70,10 @@ export default function SeasonalAnimePage() {
         status: anime.Status ?? "Unknown",
       }));
   
-  
+ 
+ if (loading) {
+    return <Loading />
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">
@@ -68,7 +86,7 @@ export default function SeasonalAnimePage() {
             <SearchBar />
           </div>
 
-          <h1 className="text-3xl font-bold mb-6">New Releases</h1>
+          <h1 className="text-3xl font-bold mb-6">`New Releases</h1>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
             {animeList.map((anime) => (

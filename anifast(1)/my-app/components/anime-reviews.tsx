@@ -14,6 +14,16 @@ import { ReviewsFetcher } from "@/server/fetchreview"
 
 export interface Review {
   AnimeId: string;
+  Title: string
+  Username: string;
+  Avatar: string;
+  Rating: number;
+  Content: string;
+  ReviewDate: string;
+}
+
+export interface postReview {
+  AnimeId: string;
   UserEmail: string;
   Avatar: string;
   Rating: number;
@@ -71,7 +81,7 @@ export function AnimeReviews({ animeId }: AnimeReviewsProps) {
     setIsSubmitting(true);
 
     // Build the review object matching our API expectations.
-    const review: Review = {
+    const review: postReview = {
       AnimeId: animeId.toString(),
       UserEmail: session?.user?.email ?? "anonymous@example.com", // using the user's email
       Avatar: "/avatar.png",
@@ -137,12 +147,12 @@ export function AnimeReviews({ animeId }: AnimeReviewsProps) {
           <div key={review.ReviewDate} className="border-b border-[#2A1F3C] pb-6 last:border-0">
             <div className="flex items-start gap-4">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={"/placeholder.svg"} alt={review.UserEmail} />
-                <AvatarFallback>{review.UserEmail}</AvatarFallback>
+                <AvatarImage src={"/placeholder.svg"} alt={review.Username.charAt(0)} />
+                <AvatarFallback>{review.Username}</AvatarFallback>
               </Avatar>
               <div className="flex-grow">
                 <div className="flex justify-between items-center mb-1">
-                  <div className="font-medium">{review.UserEmail}</div>
+                  <div className="font-medium">{review.Username}</div>
                   <div className="text-sm text-gray-400">
                     {new Date(review.ReviewDate).toLocaleString(undefined, {
                       year: "numeric",

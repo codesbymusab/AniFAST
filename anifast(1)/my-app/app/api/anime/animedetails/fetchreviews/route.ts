@@ -9,14 +9,24 @@ export async function GET(request: Request) {
   if (!animeId) {
     return NextResponse.json({ error: "Anime ID is required." }, { status: 400 });
   }
+  let query;
 
+  if (animeId == '0') {
+    query = `SELECT U.Username,A.Title,R.* FROM Reviews AS R
+ Join Anime AS A ON A.AnimeID=R.AnimeID
+ Join Users AS U ON U.Email=R.UserEmail`;
+  }
+  else {
+    query = `SELECT U.Username,R.* FROM Reviews AS R
+ Join Users AS U ON U.Email=R.UserEmail WHERE AnimeID = @AnimeID`;
+  }
   try {
     const pool = await connectDB();
 
     // Use parameterized queries to prevent SQL injection
     const result = await pool.request()
       .input("AnimeID", animeId)
-      .query("SELECT * FROM Reviews WHERE AnimeID = @AnimeID");
+      .query(query);
 
     return NextResponse.json(result.recordset ?? []);
   } catch (error: any) {

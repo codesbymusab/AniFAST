@@ -8,11 +8,14 @@ import { Footer } from "@/components/footer"
 import { AnimeCard, type Anime } from "@/components/anime-card"
 import Link from "next/link"
 import { AnimeFetcher } from "@/server/fetchanimes"
-import { useEffect} from "react";
-import type {AnimeItem} from "@/server/fetchanimes"
+import { useEffect } from "react"
+import type { AnimeItem } from "@/server/fetchanimes"
+import Loading from "@/components/loading"
 
 export default function PopularAnimePage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [popularAnime, setPopularAnime] = useState<AnimeItem[]>([])
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen)
@@ -22,36 +25,33 @@ export default function PopularAnimePage() {
     setIsSidebarOpen(false)
   }
 
-  // ===== BACKEND INTEGRATION POINT =====
-  // Replace this sample data with data fetched from your backend API
-  // Example with fetch:
-  // useEffect(() => {
-  //   const fetchPopularAnime = async () => {
-  //     const response = await fetch('/api/anime?filter=popular&limit=24');
-  //     const data = await response.json();
-  //     setAnimeList(data);
-  //   };
-  //   fetchPopularAnime();
-  // }, []);
-  // ===================================
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await AnimeFetcher("popular", 18)
+        setPopularAnime(data)
+      } catch (error) {
+        console.error("Error fetching popular anime:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchData()
+  }, [])
 
-  
-  const [newAnime, setPopularAnime] = useState<AnimeItem[]>([]);
+  const animeList = popularAnime.map((anime) => ({
+    id: anime.AnimeID,
+    title: anime.Title,
+    image: anime.CoverImage ?? "/placeholder.svg?height=225&width=150",
+    score: anime.Rating ?? 0,
+    episodes: anime.Episodes,
+    status: anime.Status ?? "Unknown",
+  }))
 
-    useEffect(() => {
-      AnimeFetcher("popular", 18).then(setPopularAnime);
-    }, []);
-  
-  
-   
-      const animeList=newAnime.map((anime) => ({
-        id: anime.AnimeID,
-        title: anime.Title,
-        image: anime.CoverImage ?? "/placeholder.svg?height=225&width=150",
-        score: anime.Rating ?? 0,
-        episodes: anime.Episodes,
-        status: anime.Status ?? "Unknown",
-      }));
+  if (loading) {
+    return <Loading />
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">
@@ -64,7 +64,7 @@ export default function PopularAnimePage() {
             <SearchBar />
           </div>
 
-          <h1 className="text-3xl font-bold mb-6">Popular Anime</h1>
+          <h1 className="text-3xl font-bold mb-6">`Popular Anime</h1>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
             {animeList.map((anime) => (

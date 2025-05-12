@@ -1,12 +1,54 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import './globals.css'
-import { SessionProvider } from "next-auth/react";
 import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
-  title: 'aniFast App',
-  description: 'Created with anifast',
+  title: {
+    default: 'aniFast App',
+    template: '%s | aniFast App'
+  },
+  description: 'Your ultimate anime streaming and discovery platform',
   generator: 'ani.dev',
+  applicationName: 'aniFast',
+  referrer: 'origin-when-cross-origin',
+  keywords: ['anime', 'streaming', 'watch anime', 'anime list'],
+  authors: [{ name: 'aniFast Team' }],
+  creator: 'aniFast Developers',
+  publisher: 'aniFast',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+ icons: {
+  icon: '/favicon/favicon.ico',
+  shortcut: '/favicon/favicon.ico',
+  apple: '/favicon/apple-touch-icon.png',
+},
+  manifest: '/favicon/site.webmanifest',
+  themeColor: '#0E0A1F',
+  openGraph: {
+    title: 'aniFast App',
+    description: 'Your ultimate anime streaming and discovery platform',
+    url: 'https://yourdomain.com',
+    siteName: 'aniFast',
+    images: [
+      {
+        url: 'https://yourdomain.com/images/og-image.jpg',
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'aniFast App',
+    description: 'Your ultimate anime streaming and discovery platform',
+    creator: '@aniFast',
+    images: ['https://yourdomain.com/images/twitter-card.jpg'],
+  },
 }
 
 export default function RootLayout({
@@ -15,8 +57,13 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-        <body>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Preconnect to external domains if needed */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
+      <body className="min-h-screen bg-[#0E0A1F] text-white antialiased">
         <Providers>
           {children}
         </Providers>
@@ -24,6 +71,3 @@ export default function RootLayout({
     </html>
   )
 }
-
-
-

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Logo } from "./logo"
 import { Button } from "@/components/ui/button"
 import { usePathname } from "next/navigation"
@@ -16,7 +17,6 @@ export function NavBar({ toggleSidebar }: NavBarProps) {
     <header className="bg-[#0E0A1F] border-b border-[#2A1F3C] fixed top-0 left-20 right-0 z-10">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center">
-
           <Logo />
         </div>
 
@@ -29,7 +29,6 @@ export function NavBar({ toggleSidebar }: NavBarProps) {
 function NavButtons() {
   const pathname = usePathname()
 
-  // Show different buttons based on current page
   if (pathname === "/login") {
     return (
       <div className="flex items-center space-x-4">
@@ -40,7 +39,7 @@ function NavButtons() {
     )
   }
 
-  if (pathname === "/signup" || pathname==="/") {
+  if (pathname === "/signup" || pathname === "/") {
     return (
       <div className="flex items-center space-x-4">
         <Button asChild className="bg-[#E5A9FF] hover:bg-[#D68FFF] text-[#0E0A1F]">
@@ -50,18 +49,34 @@ function NavButtons() {
     )
   }
 
-  // Default buttons for other pages
   return (
     <div className="flex items-center space-x-4">
-      <Button asChild onClick={async () => {
-        // Call signOut to clear the session
-        await signOut({
-          redirect: true,               // Optionally redirect after sign-out
-          callbackUrl: '/login',        // Specify where to redirect the user after logout
-        });
+      {/* Dashboard button with user profile image */}
+      <Link href="/dashboard">
+        <Button variant="ghost" size="icon" className="rounded-full overflow-hidden">
+          <Image
+            src="/images/pfp1.png"
+            alt="User Avatar"
+            width={32}
+            height={32}
+            className="rounded-full object-cover"
+          />
+          {/* 🔮 Later replace this with: */}
+          {/* <Image src={user.image} alt="User Avatar" ... /> */}
+        </Button>
+      </Link>
 
-      }} className="bg-[#E5A9FF] hover:bg-[#D68FFF] text-[#0E0A1F]">
-        <Link href="/login">Sign Out</Link>
+      {/* Sign out button */}
+      <Button
+        onClick={async () => {
+          await signOut({
+            redirect: true,
+            callbackUrl: "/login",
+          })
+        }}
+        className="bg-[#E5A9FF] hover:bg-[#D68FFF] text-[#0E0A1F]"
+      >
+        Sign Out
       </Button>
     </div>
   )
