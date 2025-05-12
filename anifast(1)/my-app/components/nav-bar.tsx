@@ -1,10 +1,11 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Logo } from "./logo"
 import { Button } from "@/components/ui/button"
 import { usePathname } from "next/navigation"
-import { Menu, UserCircle } from "lucide-react" // <== Added UserCircle icon
+import { Menu } from "lucide-react"
 import { signOut } from "next-auth/react"
 
 interface NavBarProps {
@@ -50,12 +51,18 @@ function NavButtons() {
 
   return (
     <div className="flex items-center space-x-4">
-      {/* Avatar-style button for dashboard */}
+      {/* Dashboard button with user profile image */}
       <Link href="/dashboard">
-        <Button variant="ghost" size="icon">
-          {/* Replace this with actual user image from DB later */}
-          {/* <Image src={user.image} alt="Avatar" className="rounded-full" /> */}
-          <UserCircle className="w-6 h-6 text-white" />
+        <Button variant="ghost" size="icon" className="rounded-full overflow-hidden">
+          <Image
+            src="/images/pfp1.png"
+            alt="User Avatar"
+            width={32}
+            height={32}
+            className="rounded-full object-cover"
+          />
+          {/* 🔮 Later replace this with: */}
+          {/* <Image src={user.image} alt="User Avatar" ... /> */}
         </Button>
       </Link>
 
@@ -65,7 +72,7 @@ function NavButtons() {
           await signOut({
             redirect: true,
             callbackUrl: "/login",
-          });
+          })
         }}
         className="bg-[#E5A9FF] hover:bg-[#D68FFF] text-[#0E0A1F]"
       >
