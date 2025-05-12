@@ -116,15 +116,11 @@ export default function HomePage() {
             <SearchBar />
           </div>
 
-          {/* ===== BACKEND INTEGRATION POINT =====
-              Replace these static AnimeSection components with dynamic ones
-              that render based on data fetched from your backend
-              You can also add loading states and error handling here
-              ===================================== */}
+          
               
-      <AnimeSection title="Newly Released" animeList={mapAnime(newAnime)} viewAllLink="/new-release" />
-      <AnimeSection title="Popular" animeList={mapAnime(popularAnime)} viewAllLink="/popular-anime" />
-      <AnimeSection title="Top Rated" animeList={mapAnime(topRatedAnime)} viewAllLink="/top-rated" />
+      <AnimeSection title="`Newly Released" animeList={mapAnime(newAnime)} viewAllLink="/new-release" />
+      <AnimeSection title="`Popular" animeList={mapAnime(popularAnime)} viewAllLink="/popular-anime" />
+      <AnimeSection title="`Top Rated" animeList={mapAnime(topRatedAnime)} viewAllLink="/top-rated" />
   
       {/* Recent Reviews Section */}
       <RecentReviews />

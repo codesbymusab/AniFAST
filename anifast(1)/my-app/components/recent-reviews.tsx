@@ -78,7 +78,7 @@ export function RecentReviews() {
 
   return (
     <div className="w-full py-8 mt-8 border-t border-[#2A1F3C]">
-      <h2 className="text-2xl font-bold mb-6 text-white">Recent Reviews</h2>
+      <h2 className="text-2xl font-bold mb-6 text-white">`Recent Reviews</h2>
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Character Image Section */}

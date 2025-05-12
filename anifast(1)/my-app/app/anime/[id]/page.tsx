@@ -181,7 +181,7 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
 
             {/* Reviews Section */}
             <div className="mt-12 mb-8">
-              <h2 className="text-2xl font-bold mb-6">Reviews</h2>
+              <h2 className="text-2xl font-bold mb-6">`Reviews</h2>
               <AnimeReviews animeId={id} />
 
             </div>

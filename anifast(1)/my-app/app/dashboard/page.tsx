@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { NavBar } from "@/components/nav-bar"
 import { Sidebar } from "@/components/sidebar"
-import { SearchBar } from "@/components/search-bar"
 import { Footer } from "@/components/footer"
 import Loading from "@/components/loading"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -25,8 +24,8 @@ export default function UserDashboardPage() {
   const [user, setUser] = useState({
     name: "John Doe",
     email: "john.doe@example.com",
-    image: "/avatar-placeholder.png",
-    bio: "Just a regular anime lover binging between deadlines and dreams~ 🌸"
+    pfpNum: 1,
+    bio: "Just a regular anime lover binging between deadlines and dreams~ 🌸",
   })
 
   const [recentActivity, setRecentActivity] = useState({
@@ -36,22 +35,18 @@ export default function UserDashboardPage() {
   })
 
   const [friends, setFriends] = useState([
-    { id: 1, name: "Sarah", image: "/friend1-avatar.png", status: "Approved" },
-    { id: 2, name: "Mike", image: "/friend2-avatar.png", status: "Pending" },
-    { id: 3, name: "Emma", image: "/friend3-avatar.png", status: "Pending" },
-    { id: 4, name: "Alex", image: "/friend4-avatar.png",status: "Approved" }
+    { id: 1, name: "Sarah", image: "/images/pfp3.png", status: "Approved" },
+    { id: 2, name: "Mike", image: "/images/pfp2.png", status: "Pending" },
+    { id: 3, name: "Emma", image: "/images/pfp3.png", status: "Pending" },
+    { id: 4, name: "Alex", image: "/images/pfp4.png", status: "Approved" }
   ])
-
-
 
   const [posts, setPosts] = useState([
     { id: 1, title: "My Top 5 Romance Anime", content: "Here are some heartwarming picks: Clannad, Toradora, and more~!" },
     { id: 2, title: "Winter Season Watchlist", content: "So hyped for Solo Leveling and Haikyuu movies!!" }
   ])
 
-  //Replace with watchlist and favorites fecthing functions
   const [recommendations, setRecommendations] = useState<AnimeItem[]>([])
-  //const [recommendations, setRecommendations] = useState<AnimeItem[]>([])
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -89,7 +84,7 @@ export default function UserDashboardPage() {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
-                <AvatarImage src={user.image} />
+                <AvatarImage src={`/images/pfp${user.pfpNum}.png`} />
                 <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
               </Avatar>
               <div>
@@ -97,15 +92,43 @@ export default function UserDashboardPage() {
                 <p className="text-gray-400">{user.email}</p>
               </div>
             </div>
-            <Button variant="outline" className="bg-[#6B21A8] hover:bg-[#7C3AED]">
-              Edit Profile
-            </Button>
+
+            {/* Profile Picture Edit Dialog */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="bg-[#6B21A8] hover:bg-[#7C3AED]">
+                  Edit Profile Picture
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-[#1A1338] border-none text-white">
+                <DialogHeader>
+                  <DialogTitle>Choose a Profile Picture</DialogTitle>
+                  <DialogDescription>Select one of the avatars below</DialogDescription>
+                </DialogHeader>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
+                  {[1, 2, 3, 4].map((num) => (
+                    <button
+                      key={num}
+                      onClick={() => setUser(prev => ({ ...prev, pfpNum: num }))}
+                      className={`border-2 rounded-xl p-1 transition-all hover:border-purple-500 ${
+                        user.pfpNum === num ? "border-purple-500" : "border-transparent"
+                      }`}
+                    >
+                      <img
+                        src={`/images/pfp${num}.png`}
+                        alt={`Profile ${num}`}
+                        className="rounded-lg w-full h-auto"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
 
-          {/* Dashboard Sections */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-            {/* Bio */}
-            <div className="p-6 rounded-xl bg-[#1A1338]">
+          {/* Bio & Friends Section */}
+          <div className="flex flex-col md:flex-row justify-center gap-6 mb-10 max-w-4xl mx-auto">
+            <div className="flex-1 p-6 rounded-xl bg-[#1A1338]">
               <div className="flex justify-between items-start">
                 <h2 className="text-xl font-semibold mb-4">About You</h2>
                 <Button variant="ghost" size="sm" className="text-xs text-purple-400">Edit Bio</Button>
@@ -113,22 +136,19 @@ export default function UserDashboardPage() {
               <p className="text-gray-300">{user.bio}</p>
             </div>
 
-            {/* Friends */}
-            <div className="p-6 rounded-xl bg-[#1A1338]">
+            <div className="flex-1 p-6 rounded-xl bg-[#1A1338]">
               <h2 className="text-xl font-semibold mb-4">Friends</h2>
               <div className="grid grid-cols-2 gap-4">
                 {friends.map(friend => (
                   <div key={friend.id} className="p-3 rounded-lg bg-[#2A1F3C]">
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-16 w-16">
                         <AvatarImage src={friend.image} />
-                        <AvatarFallback>{friend.name.charAt(0)}</AvatarFallback>
+                        <AvatarFallback>{friend.name?.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div>
                         <p className="font-medium">{friend.name}</p>
-                        {friend.status && (
-                          <p className="text-xs text-gray-400 mt-1">Status: {friend.status}</p>
-                        )}
+                        <p className="text-xs text-gray-400 mt-1">Status: {friend.status}</p>
                       </div>
                     </div>
                   </div>
@@ -164,12 +184,10 @@ export default function UserDashboardPage() {
               ))}
             </div>
           </div>
-          
-             {/* Posts Section */}
-             <div className="mb-10">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">Your Reviews</h2>
-            </div>
+
+          {/* Reviews Section */}
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold mb-4">Your Reviews</h2>
             <div className="space-y-4">
               {posts.map(post => (
                 <div key={post.id} className="p-4 bg-[#1A1338] rounded-xl">
@@ -192,8 +210,8 @@ export default function UserDashboardPage() {
             </div>
           </div>
 
-           {/* Favorites Section */}
-           <div className="mb-6">
+          {/* Favorites Section */}
+          <div className="mb-6">
             <h2 className="text-2xl font-bold mb-4">Favorites</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
               {animeList.map((anime) => (
@@ -203,7 +221,6 @@ export default function UserDashboardPage() {
               ))}
             </div>
           </div>
-
         </div>
       </main>
 

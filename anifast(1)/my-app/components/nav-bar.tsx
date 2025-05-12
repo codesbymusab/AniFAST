@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Logo } from "./logo"
 import { Button } from "@/components/ui/button"
 import { usePathname } from "next/navigation"
-import { Menu } from "lucide-react"
+import { Menu, UserCircle } from "lucide-react" // <== Added UserCircle icon
 import { signOut } from "next-auth/react"
 
 interface NavBarProps {
@@ -16,7 +16,6 @@ export function NavBar({ toggleSidebar }: NavBarProps) {
     <header className="bg-[#0E0A1F] border-b border-[#2A1F3C] fixed top-0 left-20 right-0 z-10">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center">
-
           <Logo />
         </div>
 
@@ -29,7 +28,6 @@ export function NavBar({ toggleSidebar }: NavBarProps) {
 function NavButtons() {
   const pathname = usePathname()
 
-  // Show different buttons based on current page
   if (pathname === "/login") {
     return (
       <div className="flex items-center space-x-4">
@@ -40,7 +38,7 @@ function NavButtons() {
     )
   }
 
-  if (pathname === "/signup" || pathname==="/") {
+  if (pathname === "/signup" || pathname === "/") {
     return (
       <div className="flex items-center space-x-4">
         <Button asChild className="bg-[#E5A9FF] hover:bg-[#D68FFF] text-[#0E0A1F]">
@@ -50,18 +48,28 @@ function NavButtons() {
     )
   }
 
-  // Default buttons for other pages
   return (
     <div className="flex items-center space-x-4">
-      <Button asChild onClick={async () => {
-        // Call signOut to clear the session
-        await signOut({
-          redirect: true,               // Optionally redirect after sign-out
-          callbackUrl: '/login',        // Specify where to redirect the user after logout
-        });
+      {/* Avatar-style button for dashboard */}
+      <Link href="/dashboard">
+        <Button variant="ghost" size="icon">
+          {/* Replace this with actual user image from DB later */}
+          {/* <Image src={user.image} alt="Avatar" className="rounded-full" /> */}
+          <UserCircle className="w-6 h-6 text-white" />
+        </Button>
+      </Link>
 
-      }} className="bg-[#E5A9FF] hover:bg-[#D68FFF] text-[#0E0A1F]">
-        <Link href="/login">Sign Out</Link>
+      {/* Sign out button */}
+      <Button
+        onClick={async () => {
+          await signOut({
+            redirect: true,
+            callbackUrl: "/login",
+          });
+        }}
+        className="bg-[#E5A9FF] hover:bg-[#D68FFF] text-[#0E0A1F]"
+      >
+        Sign Out
       </Button>
     </div>
   )

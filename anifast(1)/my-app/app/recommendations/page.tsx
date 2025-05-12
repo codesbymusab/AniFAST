@@ -112,7 +112,7 @@ export default function RecommendationsPage() {
             <SearchBar />
           </div>
 
-          <h1 className="text-3xl font-bold mb-6">Recommendations</h1>
+          <h1 className="text-3xl font-bold mb-6">`Recommendations</h1>
 
           {recommendations.map((section) => (
             <div key={section.category} className="mb-12">
