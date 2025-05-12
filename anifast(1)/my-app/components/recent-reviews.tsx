@@ -2,80 +2,37 @@ import Image from "next/image"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Clock } from "lucide-react"
+import { Review } from "./anime-reviews"
+import { ReviewsFetcher } from "@/server/fetchreview"
+import { useState,useEffect } from "react"
 
-interface Review {
-  id: string
-  user: {
-    name: string
-    avatar: string
-  }
-  time: string
-  comment: string
-  anime: {
-    id: number
-    title: string
-  }
-  episode?: string
-}
 
 export function RecentReviews() {
-  // Sample reviews data
-  const reviews: Review[] = [
-    {
-      id: "1",
-      user: {
-        name: "Watcher",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      time: "a minute ago",
-      comment: "Ep Done ✅",
-      anime: {
-        id: 101,
-        title: "The Apothecary Diaries",
-      },
-    },
-    {
-      id: "2",
-      user: {
-        name: "bread.",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      time: "a minute ago",
-      comment: "peak show btw",
-      anime: {
-        id: 102,
-        title: "Lazarus",
-      },
-    },
-    {
-      id: "3",
-      user: {
-        name: "Withyx",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      time: "a minute ago",
-      comment: "07:33 huh Humans? I thought u guys was demons",
-      anime: {
-        id: 103,
-        title: "The Misfit of Demon King Academy",
-      },
-    },
-    {
-      id: "4",
-      user: {
-        name: "Watcher",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      time: "a minute ago",
-      comment: "W ep",
-      anime: {
-        id: 101,
-        title: "The Apothecary Diaries",
-      },
-      episode: "12",
-    },
-  ]
 
+
+  
+    const [postedReviews, setPostedReviews] = useState<Review[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+      // Only fetch if animeId is valid.
+      
+      const fetchReviews = async () => {
+        try {
+          setIsLoading(true);
+          const fetchedReviews = await ReviewsFetcher("0");
+          console.log("Fetched reviews in component:", fetchedReviews);
+          setPostedReviews(fetchedReviews);
+        } catch (error) {
+          console.error("Error fetching reviews:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+  
+      fetchReviews();
+    }, ["0"]);
+  
   return (
     <div className="w-full py-8 mt-8 border-t border-[#2A1F3C]">
       <h2 className="text-2xl font-bold mb-6 text-white">`Recent Reviews</h2>
@@ -97,33 +54,40 @@ export function RecentReviews() {
 
         {/* Reviews Grid */}
         <div className="lg:w-3/4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {reviews.map((review) => (
+          {postedReviews.map((review) => (
             <div
-              key={review.id}
+              key={review.ReviewDate}
               className="bg-[#13102A] rounded-lg p-4 border border-[#2A1F3C] hover:border-[#E5A9FF] transition-colors"
             >
               <div className="flex items-center gap-2 mb-2">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={review.user.avatar || "/placeholder.svg"} alt={review.user.name} />
-                  <AvatarFallback>{review.user.name.charAt(0)}</AvatarFallback>
+                  <AvatarImage src={review.Avatar || "/placeholder.svg"} alt={review.Username} />
+                  <AvatarFallback>{review.Username.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <div className="font-medium text-sm text-gray-200">{review.user.name}</div>
+                <div className="font-medium text-sm text-gray-200">{review.Username}</div>
                 <div className="flex items-center text-xs text-gray-400 ml-auto">
                   <Clock className="h-3 w-3 mr-1" />
-                  {review.time}
+                  {new Date(review.ReviewDate).toLocaleString(undefined, {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    })}
                 </div>
               </div>
 
               <p className="text-gray-300 mb-3 text-sm">
-                {review.comment}
-                {review.episode && <span className="ml-1 text-xs text-gray-400">(Episode {review.episode})</span>}
+                {review.Content}
+          
               </p>
 
               <Link
-                href={`/anime/${review.anime.id}`}
+                href={`/anime/${review.AnimeId}`}
                 className="flex items-center text-xs text-[#E5A9FF] hover:underline"
               >
-                <span className="mr-1">📝</span> {review.anime.title}
+                <span className="mr-1">📝</span> {review.Title}
               </Link>
             </div>
           ))}

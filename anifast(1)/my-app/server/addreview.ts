@@ -1,6 +1,6 @@
-import type { Review } from "@/components/anime-reviews";
+import type { postReview } from "@/components/anime-reviews";
 
-export async function postReview(review: Review): Promise<any> {
+export async function postReview(review: postReview): Promise<any> {
   try {
     const response = await fetch("/api/anime/animedetails/postreview", {
       method: "POST",

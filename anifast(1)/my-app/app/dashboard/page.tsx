@@ -13,10 +13,12 @@ import type { AnimeItem } from "@/server/fetchanimes"
 import { AnimeFetcher } from "@/server/fetchanimes"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
+import { useSession } from "next-auth/react"
 
 export default function UserDashboardPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
+   const { data: session, status } = useSession()
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
   const closeSidebar = () => setIsSidebarOpen(false)
@@ -26,12 +28,6 @@ export default function UserDashboardPage() {
     email: "john.doe@example.com",
     pfpNum: 1,
     bio: "Just a regular anime lover binging between deadlines and dreams~ 🌸",
-  })
-
-  const [recentActivity, setRecentActivity] = useState({
-    lastWatched: "Marcus Sheppaden",
-    episode: "Ep. 15",
-    favourites: ["Naruto", "One Piece", "Your Name"]
   })
 
   const [friends, setFriends] = useState([
@@ -46,31 +42,67 @@ export default function UserDashboardPage() {
     { id: 2, title: "Winter Season Watchlist", content: "So hyped for Solo Leveling and Haikyuu movies!!" }
   ])
 
-  const [recommendations, setRecommendations] = useState<AnimeItem[]>([])
-
+  const [watchlistAnime, setWatchlistAnime] = useState<AnimeItem[]>([])
+  
   useEffect(() => {
-    const fetchRecommendations = async () => {
-      try {
-        const data = await AnimeFetcher("new", 12)
-        setRecommendations(data)
-      } catch (error) {
-        console.error("Failed to fetch recommendations:", error)
-      } finally {
-        setLoading(false)
+    const fetchWatchlist = async () => {
+      if (status === "authenticated") {
+        try {
+          const filter = "watchlist" + session?.user?.email
+          const data = await AnimeFetcher(filter, 0)
+          setWatchlistAnime(data)
+        } catch (error) {
+          console.error("Error fetching watchlist:", error)
+        } finally {
+          setIsLoading(false)
+        }
+      } else if (status === "unauthenticated") {
+        setIsLoading(false)
       }
     }
-    fetchRecommendations()
-  }, [])
 
-  if (loading) return <Loading />
+    fetchWatchlist()
+  }, [status, session?.user?.email])
 
-  const animeList = recommendations.map((anime) => ({
+  const watchList = watchlistAnime.map((anime) => ({
     id: anime.AnimeID,
     title: anime.Title,
     image: anime.CoverImage ?? "/placeholder.svg?height=225&width=150",
     score: anime.Rating ?? 0,
     episodes: anime.Episodes,
-    status: anime.Status ?? "Unknown"
+    status: anime.Status ?? "Unknown",
+  }))
+
+
+  const [favoritesAnime, setFavoritesAnime] = useState<AnimeItem[]>([])
+  
+  useEffect(() => {
+    const fetchfavorites = async () => {
+      if (status === "authenticated") {
+        try {
+          const filter = "favorites" + session?.user?.email
+          const data = await AnimeFetcher(filter, 0)
+          setFavoritesAnime(data)
+        } catch (error) {
+          console.error("Error fetching favorites:", error)
+        } finally {
+          setIsLoading(false)
+        }
+      } else if (status === "unauthenticated") {
+        setIsLoading(false)
+      }
+    }
+
+    fetchfavorites()
+  }, [status, session?.user?.email])
+
+  const favList = favoritesAnime.map((anime) => ({
+    id: anime.AnimeID,
+    title: anime.Title,
+    image: anime.CoverImage ?? "/placeholder.svg?height=225&width=150",
+    score: anime.Rating ?? 0,
+    episodes: anime.Episodes,
+    status: anime.Status ?? "Unknown",
   }))
 
   return (
@@ -202,7 +234,7 @@ export default function UserDashboardPage() {
           <div className="mb-6">
             <h2 className="text-2xl font-bold mb-4">Watchlist</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-              {animeList.map((anime) => (
+              {watchList.map((anime) => (
                 <Link key={anime.id} href={`/anime/${anime.id}`}>
                   <AnimeCard anime={anime} />
                 </Link>
@@ -214,7 +246,7 @@ export default function UserDashboardPage() {
           <div className="mb-6">
             <h2 className="text-2xl font-bold mb-4">Favorites</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-              {animeList.map((anime) => (
+              {favList.map((anime) => (
                 <Link key={anime.id} href={`/anime/${anime.id}`}>
                   <AnimeCard anime={anime} />
                 </Link>
