@@ -13,6 +13,7 @@ import {
   Heart,
   X,
   Menu,
+  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -25,6 +26,7 @@ const sidebarItems = [
   { name: "Recommendations", href: "/recommendations", icon: Star },
   { name: "Watchlist", href: "/watchlist", icon: List },
   { name: "Favorites", href: "/favorites", icon: Heart },
+  { name: "Dashboard", href: "/dashboard", icon: User },
 ];
 
 export function Sidebar() {

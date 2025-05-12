@@ -10,6 +10,8 @@ import Link from "next/link"
 import { AnimeFetcher } from "@/server/fetchanimes"
 import { useEffect} from "react";
 import type {AnimeItem} from "@/server/fetchanimes"
+import Loading from "@/components/loading"
+
 
 export default function TopAnimePage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -35,12 +37,26 @@ export default function TopAnimePage() {
   // }, []);
   // ===================================
 
-  
+    const [loading, setLoading] = useState(true);
     const [newAnime, setTopratedAnime] = useState<AnimeItem[]>([]);
+
+ 
+
 useEffect(() => {
-      AnimeFetcher("popular", 18).then(setTopratedAnime);
-    }, []);
-  
+  const fetchTopAnime = async () => {
+    try {
+      const data = await AnimeFetcher("popular", 18);
+      setTopratedAnime(data);
+    } catch (error) {
+      console.error("Failed to fetch anime:", error);
+    } finally {
+      setLoading(false); 
+    }
+  };
+
+  fetchTopAnime();
+}, []);
+
   
    
       const animeList=newAnime.map((anime) => ({
@@ -52,7 +68,9 @@ useEffect(() => {
         status: anime.Status ?? "Unknown",
       }));
 
-
+ if (loading) {
+      return <Loading />
+    }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">

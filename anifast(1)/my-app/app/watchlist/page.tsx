@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { NavBar } from "@/components/nav-bar"
 import { Sidebar } from "@/components/sidebar"
 import { SearchBar } from "@/components/search-bar"
@@ -8,14 +8,16 @@ import { Footer } from "@/components/footer"
 import { AnimeCard, type Anime } from "@/components/anime-card"
 import Link from "next/link"
 import { AnimeItem } from "@/server/fetchanimes"
-import { useEffect } from "react"
 import { AnimeFetcher } from "@/server/fetchanimes"
 import { useSession } from "next-auth/react"
+import Loading from "@/components/loading"
 
 export default function WatchlistPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [isloading, setLoading] = useState(true);
-  const { data: session, status } = useSession(); 
+  const [isLoading, setIsLoading] = useState(true)
+  const { data: session, status } = useSession()
+  const [watchlistAnime, setWatchlistAnime] = useState<AnimeItem[]>([])
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen)
   }
@@ -24,26 +26,38 @@ export default function WatchlistPage() {
     setIsSidebarOpen(false)
   }
 
- const [newAnime, setWatchlistAnime] = useState<AnimeItem[]>([]);
- 
-    const filter="watchlist"+ session?.user?.email;
-    useEffect(() => {
-      AnimeFetcher(filter,0).then(setWatchlistAnime);
-      setLoading(true);
-    }, []);
-  
+  useEffect(() => {
+    const fetchWatchlist = async () => {
+      if (status === "authenticated") {
+        try {
+          const filter = "watchlist" + session?.user?.email
+          const data = await AnimeFetcher(filter, 0)
+          setWatchlistAnime(data)
+        } catch (error) {
+          console.error("Error fetching watchlist:", error)
+        } finally {
+          setIsLoading(false)
+        }
+      } else if (status === "unauthenticated") {
+        setIsLoading(false)
+      }
+    }
 
-   
-      const animeList=newAnime.map((anime) => ({
-        id: anime.AnimeID,
-        title: anime.Title,
-        image: anime.CoverImage ?? "/placeholder.svg?height=225&width=150",
-        score: anime.Rating ?? 0,
-        episodes: anime.Episodes,
-        status: anime.Status ?? "Unknown",
-      }));
+    fetchWatchlist()
+  }, [status, session?.user?.email])
 
-      
+  const animeList = watchlistAnime.map((anime) => ({
+    id: anime.AnimeID,
+    title: anime.Title,
+    image: anime.CoverImage ?? "/placeholder.svg?height=225&width=150",
+    score: anime.Rating ?? 0,
+    episodes: anime.Episodes,
+    status: anime.Status ?? "Unknown",
+  }))
+
+  if (isLoading) {
+    return <Loading />
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">
@@ -58,7 +72,7 @@ export default function WatchlistPage() {
 
           <h1 className="text-3xl font-bold mb-6">Watchlist</h1>
 
-          {(animeList.length > 0||isloading)  ? (
+          {watchlistAnime.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
               {animeList.map((anime) => (
                 <Link key={anime.id} href={`/anime/${anime.id}`}>

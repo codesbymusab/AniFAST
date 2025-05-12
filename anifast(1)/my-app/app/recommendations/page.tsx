@@ -11,7 +11,8 @@ import { AnimeItem } from "@/server/fetchanimes"
 import { useEffect } from "react"
 import { AnimeFetcher } from "@/server/fetchanimes"
 import { useSession } from "next-auth/react"
-import Loading from "./loading"
+import Loading from "@/components/loading"
+
 
 export default function RecommendationsPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -42,12 +43,12 @@ export default function RecommendationsPage() {
       AnimeFetcher(filter1,0).then(setWatchlistAnime);
       AnimeFetcher(filter2,0).then(setFavoritesAnime);
       AnimeFetcher(filter3,0).then(setFriendsAnime);
-      setLoading(true);
+      
       
     }, []);
   
 
-   
+      
       const wanimeList=newAnime1.map((anime) => ({
         id: anime.AnimeID,
         title: anime.Title,
@@ -65,7 +66,7 @@ export default function RecommendationsPage() {
         episodes: anime.Episodes,
         status: anime.Status ?? "Unknown",
       }));
-
+      
       const frnanimeList=newAnime3.map((anime) => ({
         id: anime.AnimeID,
         title: anime.Title,
@@ -98,6 +99,7 @@ export default function RecommendationsPage() {
     return <Loading/>
   }
 
+  
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">

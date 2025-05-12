@@ -55,9 +55,9 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
     fetchAnimeDetail();
   }, [id]);
 
-  // if (isLoading) {
-  //   return <Loading />
-  // }
+  if (isLoading) {
+    return <Loading />
+  }
 
   // if (!animeDetails) {
   //   return <div>No anime data found.</div>;

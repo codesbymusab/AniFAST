@@ -99,9 +99,9 @@ export default function HomePage() {
   // Example: const { data: myList } = useSWR('/api/user/mylist', fetcher)
   // ===================================
 
-  // if (loading) {
-  //   return <Loading />
-  // }
+  if (loading) {
+    return <Loading />
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">
