@@ -12,12 +12,14 @@ import { Sidebar } from "@/components/sidebar"
 import { SearchBar } from "@/components/search-bar"
 import { Footer } from "@/components/footer"
 
+// Separate component that uses useSearchParams
 function SearchContent() {
   const searchParams = useSearchParams()
   const query = searchParams.get("query") ?? ""
   const [loading, setLoading] = useState(true)
   const [results, setResults] = useState<AnimeItem[]>([])
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [searchType, setSearchType] = useState<"title" | "genre" | "all">("all")
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
   const closeSidebar = () => setIsSidebarOpen(false)
@@ -27,7 +29,26 @@ function SearchContent() {
       try {
         if (query.trim() === "") return
         setLoading(true)
-        const data = await AnimeFetcher("search", 20, query)
+        const data = await AnimeFetcher("search", 50, query)
+        
+        // Check if this is a genre search
+        if (data.length > 0) {
+          // Check if any anime has genres that match the query
+          const isGenreSearch = data.some((anime) => {
+            // Make sure genres exist and is an array before using .some()
+            return anime.genres && Array.isArray(anime.genres) && 
+              anime.genres.some((genre: string) => 
+                genre.toLowerCase() === query.toLowerCase()
+              );
+          });
+          
+          if (isGenreSearch) {
+            setSearchType("genre");
+          } else {
+            setSearchType("title");
+          }
+        }
+        
         setResults(data)
       } catch (error) {
         console.error("Error fetching search results:", error)
@@ -52,7 +73,15 @@ function SearchContent() {
           </div>
 
           <h1 className="text-3xl font-bold mb-6">
-            Search Results for: <span className="text-purple-400">"{query}"</span>
+            {searchType === "genre" ? (
+              <>
+                Anime with <span className="text-purple-400">"{query}"</span> Genre
+              </>
+            ) : (
+              <>
+                Search Results for: <span className="text-purple-400">"{query}"</span>
+              </>
+            )}
           </h1>
 
           {results.length === 0 ? (
@@ -60,22 +89,26 @@ function SearchContent() {
               No results found... try something else, senpai~ 🥺🍥
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-              {results.map((anime) => (
-                <Link key={anime.AnimeID} href={`/anime/${anime.AnimeID}`}>
-                  <AnimeCard
-                    anime={{
-                      id: anime.AnimeID,
-                      title: anime.Title,
-                      image: anime.CoverImage ?? "/placeholder.svg?height=225&width=150",
-                      score: anime.Rating ?? 0,
-                      episodes: anime.Episodes,
-                      status: anime.Status ?? "Unknown"
-                    }}
-                  />
-                </Link>
-              ))}
-            </div>
+            <>
+              <p className="text-gray-400 mb-6">Found {results.length} anime matching your search</p>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                {results.map((anime) => (
+                  <Link key={anime.id || anime.AnimeID} href={`/anime/${anime.id || anime.AnimeID}`}>
+                    <AnimeCard
+                      anime={{
+                        id: anime.id || anime.AnimeID,
+                        title: anime.title || anime.Title,
+                        image: anime.image || anime.CoverImage || "/placeholder.svg?height=225&width=150",
+                        score: anime.score || anime.Rating,
+                        episodes: anime.episodes || anime.Episodes,
+                        status: anime.status || anime.Status
+                      }}
+                    />
+                  </Link>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </main>
@@ -87,6 +120,7 @@ function SearchContent() {
   )
 }
 
+// Main component that wraps the SearchContent with Suspense
 export default function SearchPage() {
   return (
     <Suspense fallback={<Loading />}>

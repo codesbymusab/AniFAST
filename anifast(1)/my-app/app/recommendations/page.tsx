@@ -7,7 +7,7 @@ import { SearchBar } from "@/components/search-bar"
 import { Footer } from "@/components/footer"
 import { AnimeCard } from "@/components/anime-card"
 import Link from "next/link"
-import { AnimeItem } from "@/server/fetchanimes"
+import { AnimeItem } from "@/server/types"
 import { useEffect } from "react"
 import { AnimeFetcher } from "@/server/fetchanimes"
 import { useSession } from "next-auth/react"
@@ -112,7 +112,7 @@ export default function RecommendationsPage() {
             <SearchBar />
           </div>
 
-          <h1 className="text-3xl font-bold mb-6">`Recommendations</h1>
+          <h1 className="text-3xl font-bold mb-6">Recommendations</h1>
 
           {recommendations.map((section) => (
             <div key={section.category} className="mb-12">

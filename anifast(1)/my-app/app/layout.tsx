@@ -1,6 +1,10 @@
-﻿import type { Metadata } from 'next'
+﻿import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { Providers } from "@/components/providers";
+
+export const viewport: Viewport = {
+  themeColor: '#0E0A1F',
+}
 
 export const metadata: Metadata = {
   title: {
@@ -20,13 +24,12 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
- icons: {
-  icon: '/favicon/favicon.ico',
-  shortcut: '/favicon/favicon.ico',
-  apple: '/favicon/apple-touch-icon.png',
-},
+  icons: {
+    icon: '/favicon/favicon.ico',
+    shortcut: '/favicon/favicon.ico',
+    apple: '/favicon/apple-touch-icon.png',
+  },
   manifest: '/favicon/site.webmanifest',
-  themeColor: '#0E0A1F',
   openGraph: {
     title: 'aniFast App',
     description: 'Your ultimate anime streaming and discovery platform',
@@ -57,13 +60,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <head>
         {/* Preconnect to external domains if needed */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="min-h-screen bg-[#0E0A1F] text-white antialiased">
+      <body>
         <Providers>
           {children}
         </Providers>

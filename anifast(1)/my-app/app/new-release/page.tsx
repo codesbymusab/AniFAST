@@ -9,7 +9,7 @@ import { AnimeCard, type Anime } from "@/components/anime-card"
 import Link from "next/link"
 import { AnimeFetcher } from "@/server/fetchanimes"
 import { useEffect} from "react";
-import type {AnimeItem} from "@/server/fetchanimes"
+import type {AnimeItem} from "@/server/types"
 import Loading from "@/components/loading"
 
 export default function SeasonalAnimePage() {
@@ -41,8 +41,6 @@ export default function SeasonalAnimePage() {
     const [newAnime, setNewAnime] = useState<AnimeItem[]>([]);
     const [loading, setLoading] = useState(true);
     
-   
-
     useEffect(() => {
   const fetchNewAnime = async () => {
     try {
@@ -58,9 +56,6 @@ export default function SeasonalAnimePage() {
   fetchNewAnime();
 }, []);
 
-  
-  
-    
       const animeList=newAnime.map((anime) => ({
         id: anime.AnimeID,
         title: anime.Title,
@@ -86,7 +81,7 @@ export default function SeasonalAnimePage() {
             <SearchBar />
           </div>
 
-          <h1 className="text-3xl font-bold mb-6">`New Releases</h1>
+          <h1 className="text-3xl font-bold mb-6">New Releases</h1>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
             {animeList.map((anime) => (
