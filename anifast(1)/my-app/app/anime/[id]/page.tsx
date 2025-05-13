@@ -16,6 +16,8 @@ import Loading from "@/components/loading"
 import { handleAddToWatchlist } from "@/server/addtowatchlist" 
 import { handleAddToFavorite }from "@/server/addtofavorites"
 import { useSession } from "next-auth/react"
+import Link from "next/link";
+
 
 interface AnimeDetailProps {
   params: Promise<{ id: string }>; // `params` is now a Promise
@@ -149,13 +151,15 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
                   <div className="flex flex-wrap gap-2 mt-1">
   {animeDetails?.Genres
     ? animeDetails.Genres.split(", ").map((genre) => (
-        <Badge key={genre} className="bg-[#2A1F3C] hover:bg-[#3A2F4C] text-white">
-          {genre}
-        </Badge>
+        <Link key={genre} href={`/searchpage?query=${encodeURIComponent(genre)}`}>
+          <Badge className="bg-[#2A1F3C] hover:bg-[#3A2F4C] text-white cursor-pointer">
+            {genre}
+          </Badge>
+        </Link>
       ))
     : <p className="text-gray-400 text-sm">No genres available</p>}
-
 </div>
+
 
                 </div>
 
