@@ -11,6 +11,7 @@ export interface AnimeItem {
 
 export async function AnimeFetcher(property: string, count: number): Promise<AnimeItem[]> {
   
+  
   const res = await fetch(`/api/anime?filter=${property}&limit=${count}`, {
    
   });
