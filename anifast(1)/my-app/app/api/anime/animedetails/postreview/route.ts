@@ -35,7 +35,7 @@ export async function POST(request: Request) {
       );
 
     return NextResponse.json({
-      message: "Review added successfully",
+      //message: "Review added successfully",
       review: { animeId, useremail, avatar, rating, content, date }
     });
   } catch (error: any) {
