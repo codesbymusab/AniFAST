@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
-import { AnimeFetcher } from "@/server/fetchanimes"
+import { AnimeSearch } from "@/server/searchanimes"
 import type { AnimeItem } from "@/server/types"
 import { AnimeCard } from "@/components/anime-card"
 import Loading from "@/components/loading"
@@ -27,28 +27,10 @@ function SearchContent() {
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        if (query.trim() === "") return
+        
         setLoading(true)
-        const data = await AnimeFetcher("search", 50, query)
-        
-        // Check if this is a genre search
-        if (data.length > 0) {
-          // Check if any anime has genres that match the query
-          const isGenreSearch = data.some((anime) => {
-            // Make sure genres exist and is an array before using .some()
-            return anime.genres && Array.isArray(anime.genres) && 
-              anime.genres.some((genre: string) => 
-                genre.toLowerCase() === query.toLowerCase()
-              );
-          });
-          
-          if (isGenreSearch) {
-            setSearchType("genre");
-          } else {
-            setSearchType("title");
-          }
-        }
-        
+        const data = await AnimeSearch(query);
+  
         setResults(data)
       } catch (error) {
         console.error("Error fetching search results:", error)

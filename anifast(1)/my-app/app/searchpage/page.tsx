@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
-import { AnimeFetcher } from "@/server/fetchanimes"
+import { AnimeSearch } from "@/server/searchanimes"
 import type { AnimeItem } from "@/server/types"
 import { AnimeCard } from "@/components/anime-card"
 import Loading from "@/components/loading"
@@ -27,7 +27,7 @@ function SearchContent() {
       try {
         if (query.trim() === "") return
         setLoading(true)
-        const data = await AnimeFetcher("search", 20, query)
+        const data = await AnimeSearch(query);
         setResults(data)
       } catch (error) {
         console.error("Error fetching search results:", error)

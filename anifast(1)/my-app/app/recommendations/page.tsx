@@ -83,7 +83,7 @@ export default function RecommendationsPage() {
         
     },
     {
-      category: "Baased on your Likes",
+      category: "Based on your Likes",
       animeList: fanimeList
        
     },
@@ -95,11 +95,6 @@ export default function RecommendationsPage() {
 
   ]
 
-  if (status === "loading") {
-    return <Loading/>
-  }
-
-  
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">
