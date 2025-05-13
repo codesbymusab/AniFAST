@@ -13,6 +13,7 @@ import {
   Heart,
   X,
   Menu,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -21,7 +22,7 @@ const sidebarItems = [
   { name: "Home", href: "/home", icon: Home },
   { name: "Top Rated", href: "/top-rated", icon: TrendingUp },
   { name: "New Release", href: "/new-release", icon: Calendar },
-  { name: "Popular Anime", href: "/popular-anime", icon: Users },
+  { name: "Popular Anime", href: "/popular-anime", icon: Globe },
   { name: "Recommendations", href: "/recommendations", icon: Star },
   { name: "Community", href: "/community", icon: Users },
   { name: "Watchlist", href: "/watchlist", icon: List },

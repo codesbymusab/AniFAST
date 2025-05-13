@@ -1,6 +1,7 @@
 "use client"
 
-import { useState,use } from "react"
+import { useState, use } from "react"
+import { useEffect } from "react"
 import { NavBar } from "@/components/nav-bar"
 import { Sidebar } from "@/components/sidebar"
 import { Footer } from "@/components/footer"
@@ -9,63 +10,51 @@ import { Button } from "@/components/ui/button"
 import { Heart, Star, Plus } from "lucide-react"
 import Image from "next/image"
 import { AnimeReviews } from "@/components/anime-reviews"
-import type {AnimeDetails } from "@/server/fetchanimdata"
-import { useEffect} from "react";
-import {AnimeFetcher} from "@/server/fetchanimdata"
+import type { AnimeDetails } from "@/server/fetchanimdata"
+import { AnimeFetcher } from "@/server/fetchanimdata"
 import Loading from "@/components/loading"
-import { handleAddToWatchlist } from "@/server/addtowatchlist" 
-import { handleAddToFavorite }from "@/server/addtofavorites"
+import { handleAddToWatchlist } from "@/server/addtowatchlist"
+import { handleAddToFavorite } from "@/server/addtofavorites"
 import { useSession } from "next-auth/react"
-import Link from "next/link";
-
+import Link from "next/link"
+import { CuteToast } from "@/components/ui/cute-toast"
 
 interface AnimeDetailProps {
-  params: Promise<{ id: string }>; // `params` is now a Promise
+  params: Promise<{ id: string }>
 }
 
 export default function AnimeDetailPage({ params }: AnimeDetailProps) {
-
-  
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [animeDetails, setAnimeDetails] = useState<AnimeDetails | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [showWatchlistToast, setShowWatchlistToast] = useState(false)
+  const [showFavoriteToast, setShowFavoriteToast] = useState(false)
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen)
-  }
+  const { id } = use(params)
+  const { data: session } = useSession()
+  const email = session?.user?.email
 
-  const closeSidebar = () => {
-    setIsSidebarOpen(false)
-  }
-  const [animeDetails, setAnimeDetails] = useState<AnimeDetails | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
+  const closeSidebar = () => setIsSidebarOpen(false)
 
-  const { id } = use(params); // Unwrap the params Promise
-  const { data: session, status } = useSession(); 
-  const email=session?.user?.email;
   useEffect(() => {
     const fetchAnimeDetail = async () => {
       try {
-        const data = await AnimeFetcher(id);
-        console.log(data);
-        setAnimeDetails(data);
+        const data = await AnimeFetcher(id)
+        setAnimeDetails(data)
       } catch (error) {
-        console.error("Error fetching anime details:", error);
+        console.error("Error fetching anime details:", error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchAnimeDetail();
-  }, [id]);
+    fetchAnimeDetail()
+  }, [id])
 
   if (isLoading) {
     return <Loading />
   }
-
-  // if (!animeDetails) {
-  //   return <div>No anime data found.</div>;
-  // }
-
-  console.log(animeDetails);
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">
@@ -91,12 +80,27 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
                   className="rounded-md shadow-lg border border-[#2A1F3C]"
                   priority
                 />
-                
+
+                {/* 💖 Action Buttons */}
                 <div className="mt-4 flex flex-col gap-2">
-                  <Button onClick={() => handleAddToWatchlist(id,session?.user?.email??"")} className="w-full bg-[#E5A9FF] hover:bg-[#D68FFF] text-[#0E0A1F]">
+                  <Button
+                    onClick={() => {
+                      handleAddToWatchlist(id, email ?? "")
+                      setShowWatchlistToast(true)
+                    }}
+                    className="w-full bg-[#E5A9FF] hover:bg-[#D68FFF] text-[#0E0A1F]"
+                  >
                     <Plus className="mr-2 h-4 w-4" /> Add to WatchList
                   </Button>
-                  <Button variant="outline" onClick={() => handleAddToFavorite(id,session?.user?.email??"")} className="w-full border-[#E5A9FF] text-[#E5A9FF] hover:bg-[#2A1F3C]">
+
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      handleAddToFavorite(id, email ?? "")
+                      setShowFavoriteToast(true)
+                    }}
+                    className="w-full border-[#E5A9FF] text-[#E5A9FF] hover:bg-[#2A1F3C]"
+                  >
                     <Heart className="mr-2 h-4 w-4" /> Favorite
                   </Button>
                 </div>
@@ -119,8 +123,7 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
                 </div>
 
                 <div className="prose prose-invert max-w-none mb-6">
-                <p>{animeDetails?.Synopsis.replace(/<\/?[^>]+(>|$)/g, "")}</p>
-
+                  <p>{animeDetails?.Synopsis.replace(/<\/?[^>]+(>|$)/g, "")}</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mb-8">
@@ -138,7 +141,7 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
                   </div>
                   <div>
                     <h3 className="text-gray-400 text-sm mb-1">Duration</h3>
-                    <p>{'23 Mintues'}</p>
+                    <p>23 Minutes</p>
                   </div>
                   <div>
                     <h3 className="text-gray-400 text-sm mb-1">Rating</h3>
@@ -146,48 +149,42 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
                   </div>
                 </div>
 
-                  <div>
+                {/* Genres */}
+                <div>
                   <h3 className="text-gray-400 text-sm mb-1">Genres</h3>
                   <div className="flex flex-wrap gap-2 mt-1">
-  {animeDetails?.Genres
-    ? animeDetails.Genres.split(", ").map((genre) => (
-        <Link key={genre} href={`/searchpage?query=${encodeURIComponent(genre)}`}>
-          <Badge className="bg-[#2A1F3C] hover:bg-[#3A2F4C] text-white cursor-pointer">
-            {genre}
-          </Badge>
-        </Link>
-      ))
-    : <p className="text-gray-400 text-sm">No genres available</p>}
-</div>
-
-
+                    {animeDetails?.Genres
+                      ? animeDetails.Genres.split(", ").map((genre) => (
+                          <Link key={genre} href={`/searchpage?query=${encodeURIComponent(genre)}`}>
+                            <Badge className="bg-[#2A1F3C] hover:bg-[#3A2F4C] text-white cursor-pointer">
+                              {genre}
+                            </Badge>
+                          </Link>
+                        ))
+                      : <p className="text-gray-400 text-sm">No genres available</p>}
+                  </div>
                 </div>
 
+                {/* Tags */}
                 <div className="mt-4">
-  <h3 className="text-gray-400 text-sm mb-1">Tags</h3>
-  <div className="flex flex-wrap gap-2 mt-1">
-    {animeDetails?.Tags
-      ? animeDetails.Tags.split(", ").map((tag) => (
-          <Badge key={tag} className="bg-[#2A1F3C] hover:bg-[#3A2F4C] text-white">
-            {tag}
-          </Badge>
-        ))
-      : <p className="text-gray-400 text-sm">No tags available</p>}
-  </div>
-</div>
-
+                  <h3 className="text-gray-400 text-sm mb-1">Tags</h3>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {animeDetails?.Tags
+                      ? animeDetails.Tags.split(", ").map((tag) => (
+                          <Badge key={tag} className="bg-[#2A1F3C] hover:bg-[#3A2F4C] text-white">
+                            {tag}
+                          </Badge>
+                        ))
+                      : <p className="text-gray-400 text-sm">No tags available</p>}
+                  </div>
+                </div>
               </div>
             </div>
-
-            </div>
-
-      <div className="mt-4">
 
             {/* Reviews Section */}
             <div className="mt-12 mb-8">
               <h2 className="text-2xl font-bold mb-6">Reviews</h2>
               <AnimeReviews animeId={id} />
-
             </div>
           </div>
         </div>
@@ -196,6 +193,18 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
       <div className={`transition-all duration-300 mt-auto ${isSidebarOpen ? "ml-64" : "mx-auto"}`}>
         <Footer />
       </div>
+
+      {/* Toasts  */}
+      <CuteToast
+        message="✨ Added to your Watchlist! Enjoy watching~ 💖"
+        show={showWatchlistToast}
+        onClose={() => setShowWatchlistToast(false)}
+      />
+      <CuteToast
+        message="💘 Added to Favorites! You're in love with this one, huh~? 🥰"
+        show={showFavoriteToast}
+        onClose={() => setShowFavoriteToast(false)}
+      />
     </div>
   )
 }

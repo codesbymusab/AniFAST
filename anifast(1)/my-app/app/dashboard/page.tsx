@@ -37,10 +37,24 @@ export default function UserDashboardPage() {
     { id: 4, name: "Alex", image: "/images/pfp4.png", status: "Approved" }
   ])
 
-  const [posts, setPosts] = useState([
-    { id: 1, title: "My Top 5 Romance Anime", content: "Here are some heartwarming picks: Clannad, Toradora, and more~!" },
-    { id: 2, title: "Winter Season Watchlist", content: "So hyped for Solo Leveling and Haikyuu movies!!" }
-  ])
+const [posts, setPosts] = useState([
+  {
+    id: 1,
+    title: "My Top 5 Romance Anime",
+    content: "Here are some heartwarming picks: Clannad, Toradora, and more~!",
+    timestamp: "2025-05-12T18:30:00Z",
+    likes: 24,
+  },
+  {
+    id: 2,
+    title: "Winter Season Watchlist",
+    content: "So hyped for Solo Leveling and Haikyuu movies!!",
+    timestamp: "2025-05-13T10:15:00Z",
+    likes: 15,
+  },
+])
+
+
 
   const [watchlistAnime, setWatchlistAnime] = useState<AnimeItem[]>([])
   
@@ -104,6 +118,10 @@ export default function UserDashboardPage() {
     episodes: anime.Episodes,
     status: anime.Status ?? "Unknown",
   }))
+
+if (isLoading) {
+    return <Loading />
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">
@@ -189,33 +207,27 @@ export default function UserDashboardPage() {
             </div>
           </div>
 
-          {/* Posts Section */}
-          <div className="mb-10">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">Your Posts</h2>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button className="bg-[#6B21A8] hover:bg-[#7C3AED]">New Post</Button>
-                </DialogTrigger>
-                <DialogContent className="bg-[#1A1338] border-none text-white">
-                  <DialogHeader>
-                    <DialogTitle>Create New Post</DialogTitle>
-                    <DialogDescription>Share your thoughts with fellow otakus~</DialogDescription>
-                  </DialogHeader>
-                  <Textarea placeholder="What do you wanna share? ✨" className="bg-[#0E0A1F] text-white" />
-                  <Button className="mt-4 bg-[#6B21A8] hover:bg-[#7C3AED]">Post</Button>
-                </DialogContent>
-              </Dialog>
-            </div>
-            <div className="space-y-4">
-              {posts.map(post => (
-                <div key={post.id} className="p-4 bg-[#1A1338] rounded-xl">
-                  <h3 className="text-lg font-semibold">{post.title}</h3>
-                  <p className="text-gray-300">{post.content}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+         {/* Posts Section */}
+<div className="space-y-4 mb-10">
+  <h2 className="text-2xl font-bold mb-4">Your Posts</h2>
+  {posts.map(post => (
+    <div key={post.id} className="p-4 bg-[#1A1338] rounded-xl">
+      <div className="flex items-center justify-between mb-1">
+        <h3 className="text-lg font-semibold">{post.title}</h3>
+        <span className="text-xs text-gray-400">
+          {new Date(post.timestamp).toLocaleString("en-US", {
+            dateStyle: "medium",
+            timeStyle: "short",
+          })}
+        </span>
+      </div>
+      <p className="text-gray-300 mb-2">{post.content}</p>
+      <div className="text-sm text-purple-400">{post.likes} ❤️ Likes</div>
+    </div>
+  ))}
+</div>
+
+
 
           {/* Reviews Section */}
           <div className="mb-10">

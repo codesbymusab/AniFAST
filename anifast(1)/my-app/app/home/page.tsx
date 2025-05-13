@@ -118,9 +118,9 @@ export default function HomePage() {
 
           
               
-      <AnimeSection title="Newly Released" animeList={mapAnime(newAnime)} viewAllLink="/new-release" />
-      <AnimeSection title="Popular" animeList={mapAnime(popularAnime)} viewAllLink="/popular-anime" />
-      <AnimeSection title="Top Rated" animeList={mapAnime(topRatedAnime)} viewAllLink="/top-rated" />
+      <AnimeSection title="`Newly Released" animeList={mapAnime(newAnime)} viewAllLink="/new-release" />
+      <AnimeSection title="`Popular" animeList={mapAnime(popularAnime)} viewAllLink="/popular-anime" />
+      <AnimeSection title="`Top Rated" animeList={mapAnime(topRatedAnime)} viewAllLink="/top-rated" />
   
       {/* Recent Reviews Section */}
       <RecentReviews />

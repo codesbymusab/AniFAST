@@ -13,7 +13,7 @@ export async function handleAddToFavorite(animeId: string,userEmail:string) {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
   
-      alert("Added to Favorites!");
+      
     } catch (error) {
       console.error("Failed to add to favorites:", error);
     }

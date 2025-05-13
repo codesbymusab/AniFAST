@@ -10,7 +10,7 @@ export async function handleAddToWatchlist(animeId: string,userEmail:string) {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
   
-      alert("Added to Watchlist!");
+     
     } catch (error) {
       console.error("Failed to add to watchlist:", error);
     }
