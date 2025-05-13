@@ -43,8 +43,7 @@ export default function RecommendationsPage() {
       AnimeFetcher(filter1,0).then(setWatchlistAnime);
       AnimeFetcher(filter2,0).then(setFavoritesAnime);
       AnimeFetcher(filter3,0).then(setFriendsAnime);
-      setLoading(false);
-      
+         
     }, []);
   
 

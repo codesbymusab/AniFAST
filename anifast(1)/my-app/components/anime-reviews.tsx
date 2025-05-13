@@ -11,6 +11,7 @@ import { postReview } from "@/server/addreview"
 import { useSession } from "next-auth/react";
 import { useEffect } from "react"
 import { ReviewsFetcher } from "@/server/fetchreview"
+import { CuteToast } from "@/components/ui/cute-toast"
 
 export interface Review {
   AnimeId: string;
@@ -48,6 +49,8 @@ export function AnimeReviews({ animeId }: AnimeReviewsProps) {
 
 
   const [postedReviews, setPostedReviews] = useState<Review[]>([]);
+  const [showReviewToast, setShowReviewToast] = useState(false)
+
 
   useEffect(() => {
     // Only fetch if animeId is valid.
@@ -92,6 +95,7 @@ export function AnimeReviews({ animeId }: AnimeReviewsProps) {
 
     try {
       const newReviewData = await postReview(review);
+      setShowReviewToast(true);
       // Optionally update state with the new review if needed
       // e.g., setReviews(prev => [newReviewData.review, ...prev]);
     } catch (error) {
@@ -100,7 +104,7 @@ export function AnimeReviews({ animeId }: AnimeReviewsProps) {
       setNewReview("");
       setRating(0);
       setIsSubmitting(false);
-      alert("Review submitted successfully!");
+    
     }
   };
 
@@ -139,6 +143,13 @@ export function AnimeReviews({ animeId }: AnimeReviewsProps) {
             {isSubmitting ? "Submitting..." : "Submit Review"}
           </Button>
         </form>
+
+        <CuteToast
+        message="✏️ Your review was posted! Thanks for sharing your thoughts~ 🌸"
+        show={showReviewToast}
+        onClose={() => setShowReviewToast(false)}
+      />
+
       </div>
 
       {/* Reviews List */}

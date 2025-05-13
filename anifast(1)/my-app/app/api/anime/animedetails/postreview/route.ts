@@ -6,11 +6,11 @@ export async function POST(request: Request) {
     // Parse JSON body from the request
     const body = await request.json();
     console.log("Request Body:", body);
-    const { animeid, useremail, avatar, rating, content, date } = body;
-    let animeId = body.animeId || body.id;
+    const { AnimeId, UserEmail, Avatar, Rating, Content, ReviewDate } = body;
+    let animeId = body.AnimeId || body.id;
      console.log("Extracted animeId:", animeId);
     // Validate required fields
-    if (!animeId || !useremail || !avatar || rating === undefined || !content || !date) {
+    if (!AnimeId || !UserEmail || !Avatar || !Rating || !Content ||!ReviewDate) {
       return NextResponse.json(
         { error: "Missing one or more review fields" },
         { status: 400 }
@@ -22,12 +22,12 @@ export async function POST(request: Request) {
     // Insert the review into the Reviews table and return the inserted review id
     const result = await pool
       .request()
-      .input("AnimeId", animeId)
-      .input("Useremail", useremail)
-      .input("Avatar", avatar)
-      .input("Rating", rating)
-      .input("Content", content)
-      .input("ReviewDate", date)
+      .input("AnimeId", AnimeId)
+      .input("Useremail", UserEmail)
+      .input("Avatar", Avatar)
+      .input("Rating", Rating)
+      .input("Content", Content)
+      .input("ReviewDate", ReviewDate)
       .query(
         `INSERT INTO Reviews (AnimeId, UserEmail, Avatar, Rating, Content, ReviewDate)
          VALUES (@AnimeId, @Useremail, @Avatar, @Rating, @Content, @ReviewDate);`
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       //message: "Review added successfully",
-      review: { animeId, useremail, avatar, rating, content, date }
+      review: { AnimeId, UserEmail, Avatar, Rating, Content, ReviewDate }
     });
   } catch (error: any) {
     console.error("Error posting review:", error);

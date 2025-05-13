@@ -29,7 +29,6 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [showWatchlistToast, setShowWatchlistToast] = useState(false)
   const [showFavoriteToast, setShowFavoriteToast] = useState(false)
-  const [showReviewToast, setShowReviewToast] = useState(false)
 
   const { id } = use(params)
   const { data: session } = useSession()
@@ -185,7 +184,7 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
             {/* Reviews Section */}
             <div className="mt-12 mb-8">
               <h2 className="text-2xl font-bold mb-6">Reviews</h2>
-              <AnimeReviews animeId={id} onReviewSubmitSuccess={() => setShowReviewToast(true)} />
+              <AnimeReviews animeId={id}/>
             </div>
           </div>
         </div>
@@ -206,11 +205,7 @@ export default function AnimeDetailPage({ params }: AnimeDetailProps) {
         show={showFavoriteToast}
         onClose={() => setShowFavoriteToast(false)}
       />
-      <CuteToast
-        message="✏️ Your review was posted! Thanks for sharing your thoughts~ 🌸"
-        show={showReviewToast}
-        onClose={() => setShowReviewToast(false)}
-      />
+     
     </div>
   )
 }
