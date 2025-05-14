@@ -29,6 +29,21 @@ interface CommunityPost {
   createdAt: Date
   likes: number
   comments: number
+  characterImage?: string
+}
+
+const sampleImages = [
+  "/images/characters/char1.png",
+  "/images/characters/char2.png",
+  "/images/characters/char3.png",
+  "/images/characters/char4.png",
+  "/images/characters/char5.png",
+  "/images/characters/char6.png",
+  "/images/characters/char7.png",
+]
+
+const getRandomCharacterImage = () => {
+  return sampleImages[Math.floor(Math.random() * sampleImages.length)]
 }
 
 export default function CommunityPage() {
@@ -51,46 +66,40 @@ export default function CommunityPage() {
       try {
         setLoading(true)
         const response = await fetch("/api/posts")
-
         if (!response.ok) throw new Error("Failed to fetch posts")
-
         const data = await response.json()
-        const formattedPosts = data.map((post: any) => ({ ...post, createdAt: new Date(post.createdAt) }))
-
+        const formattedPosts = data.map((post: any) => ({
+          ...post,
+          createdAt: new Date(post.createdAt),
+          characterImage: getRandomCharacterImage()
+        }))
         setPosts(formattedPosts)
       } catch (error) {
         console.error("Failed to fetch posts:", error)
-        setPosts([]) // optionally show mock data
+        setPosts([])
       } finally {
         setLoading(false)
       }
     }
-
     fetchPosts()
   }, [])
 
   const handleCreatePost = async () => {
     if (!session?.user?.email) return toast.error("You must be logged in to create a post")
     if (!newPostTitle.trim() || !newPostContent.trim()) return toast.error("Title and content are required")
-
     try {
       setIsSubmitting(true)
-
       const response = await fetch("/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: newPostTitle, content: newPostContent, email: session.user.email })
       })
-
       if (!response.ok) throw new Error("Failed to create post")
-
       const newPost = await response.json()
-      setPosts([{ ...newPost, createdAt: new Date(newPost.createdAt) }, ...posts])
-
+      setPosts([{ ...newPost, createdAt: new Date(newPost.createdAt), characterImage: getRandomCharacterImage() }, ...posts])
       setNewPostTitle("")
       setNewPostContent("")
       setDialogOpen(false)
-
       toast.success("Post created successfully!")
     } catch (error) {
       console.error("Failed to create post:", error)
@@ -103,10 +112,8 @@ export default function CommunityPage() {
   const handleLikePost = (postId: number, e: React.MouseEvent) => {
     const x = e.clientX
     const y = e.clientY
-
     setFloatingHearts([...floatingHearts, { id: Date.now(), x, y }])
     setPosts(posts.map(p => p.id === postId ? { ...p, likes: p.likes + 1 } : p))
-
     fetch("/api/posts", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -155,7 +162,7 @@ export default function CommunityPage() {
             </div>
           </div>
 
-          <div className={`space-y-6 transition-all ${viewMode === 'card' ? 'grid grid-cols-1 sm:grid-cols-2 gap-6' : ''}`}>
+          <div className={`transition-all grid gap-6 ${viewMode === 'card' ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
             <AnimatePresence>
               {posts.map(post => (
                 <motion.div
@@ -164,28 +171,37 @@ export default function CommunityPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
                   transition={{ duration: 0.3 }}
-                  className="p-6 rounded-xl backdrop-blur-md bg-white/5 border border-white/10 shadow-lg"
+                  className={`relative p-6 rounded-xl backdrop-blur-md bg-white/5 border border-white/10 shadow-lg flex ${viewMode === 'list' ? 'flex-row' : 'flex-col'}`}
                 >
-                  <div className="flex items-center gap-3 mb-4">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={post.user.image} />
-                      <AvatarFallback>{post.user.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h3 className="font-semibold">{post.user.name}</h3>
-                      <p className="text-xs text-gray-400">{formatDistanceToNow(post.createdAt, { addSuffix: true })}</p>
+                  <div className="flex-1 pr-4">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={post.user.image} />
+                        <AvatarFallback>{post.user.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-semibold">{post.user.name}</h3>
+                        <p className="text-xs text-gray-400">{formatDistanceToNow(post.createdAt, { addSuffix: true })}</p>
+                      </div>
+                    </div>
+                    <div className="mb-4">
+                      <h4 className="text-lg font-bold mb-2">{post.title}</h4>
+                      <p className="text-gray-300 whitespace-pre-wrap break-words max-w-full">{post.content}</p>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-gray-400">
+                      <button onClick={(e) => handleLikePost(post.id, e)} className="flex items-center gap-1 hover:text-pink-400 relative">
+                        <Heart className="h-4 w-4" />
+                        <span>{post.likes} likes</span>
+                      </button>
                     </div>
                   </div>
-                  <div className="mb-4">
-                    <h4 className="text-lg font-bold mb-2">{post.title}</h4>
-                    <p className="text-gray-300 whitespace-pre-wrap">{post.content}</p>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-400">
-                    <button onClick={(e) => handleLikePost(post.id, e)} className="flex items-center gap-1 hover:text-pink-400 relative">
-                      <Heart className="h-4 w-4" />
-                      <span>{post.likes} likes</span>
-                    </button>
-                  </div>
+                  {post.characterImage && (
+                    <img
+                      src={post.characterImage}
+                      alt="Character"
+                      className="w-24 object-contain self-end"
+                    />
+                  )}
                 </motion.div>
               ))}
             </AnimatePresence>
