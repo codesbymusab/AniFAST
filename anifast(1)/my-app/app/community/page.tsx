@@ -1,6 +1,9 @@
+//File: app/community/page.tsx
+
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSession } from "next-auth/react"
 import { NavBar } from "@/components/nav-bar"
 import { Sidebar } from "@/components/sidebar"
 import { Footer } from "@/components/footer"
@@ -12,6 +15,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { Textarea } from "@/components/ui/textarea"
 import { formatDistanceToNow } from "date-fns"
 import { Heart } from "lucide-react"
+import { toast } from "sonner"
 
 interface CommunityPost {
   id: number
@@ -27,20 +31,39 @@ interface CommunityPost {
 }
 
 export default function CommunityPage() {
+  const { data: session } = useSession()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [posts, setPosts] = useState<CommunityPost[]>([])
+  const [newPostTitle, setNewPostTitle] = useState("")
+  const [newPostContent, setNewPostContent] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
   const closeSidebar = () => setIsSidebarOpen(false)
 
- useEffect(() => {
-  const fetchPosts = async () => {
-    try {
-      setLoading(true) // show loading screen, nya~
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch("/api/posts")
+        
+        if (!response.ok) {
+          throw new Error("Failed to fetch posts")
+        }
+        
+        const data = await response.json()
+        
+        const formattedPosts = data.map((post: any) => ({
+          ...post,
+          createdAt: new Date(post.createdAt)
+        }))
+        
+        setPosts(formattedPosts)
+      } catch (error) {
+        console.error("Failed to fetch posts:", error)
 
-      // Simulate an API call delay to show loading state
-      setTimeout(() => {
         const mockPosts: CommunityPost[] = [
           {
             id: 1,
@@ -91,22 +114,104 @@ export default function CommunityPage() {
             comments: 17
           }
         ]
+        setPosts(mockPosts)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-        setPosts(mockPosts) // yay, posts are in place~!
-        setLoading(false) // hide loading, uwu~
-      }, 1000) // ⏳ simulate 1 second delay
+    fetchPosts()
+  }, [])
+
+  const handleCreatePost = async () => {
+    if (!session?.user?.email) {
+      toast.error("You must be logged in to create a post")
+      return
+    }
+    
+    if (!newPostTitle.trim() || !newPostContent.trim()) {
+      toast.error("Title and content are required")
+      return
+    }
+    
+    try {
+      setIsSubmitting(true)
+      
+      const response = await fetch("/api/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          title: newPostTitle,
+          content: newPostContent,
+          email: session.user.email
+        })
+      })
+      
+      if (!response.ok) {
+        throw new Error("Failed to create post")
+      }
+      
+      const newPost = await response.json()
+      
+      setPosts([
+        {
+          ...newPost,
+          createdAt: new Date(newPost.createdAt)
+        },
+        ...posts
+      ])
+      
+      setNewPostTitle("")
+      setNewPostContent("")
+      setDialogOpen(false)
+      
+      toast.success("Post created successfully!")
     } catch (error) {
-      console.error("Failed to fetch posts:", error)
-      setLoading(false)
+      console.error("Failed to create post:", error)
+      toast.error("Failed to create post. Please try again.")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
-  fetchPosts()
-}, [])
+  const handleLikePost = async (postId: number) => {
+    try {
+      setPosts(posts.map(post => 
+        post.id === postId ? { ...post, likes: post.likes + 1 } : post
+      ))
+      
+      const response = await fetch("/api/posts", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ postId })
+      })
+      
+      if (!response.ok) {
+        throw new Error("Failed to like post")
+      }
+      
+      const data = await response.json()
+      
+      setPosts(posts.map(post => 
+        post.id === postId ? { ...post, likes: data.likes } : post
+      ))
+    } catch (error) {
+      console.error("Failed to like post:", error)
+
+      setPosts(posts.map(post => 
+        post.id === postId ? { ...post, likes: post.likes - 1 } : post
+      ))
+      toast.error("Failed to like post. Please try again.")
+    }
+  }
 
   if (loading) {
-      return <Loading />
-    }
+    return <Loading />
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">
@@ -117,7 +222,7 @@ export default function CommunityPage() {
         <div className={`max-w-4xl ${!isSidebarOpen && "mx-auto"}`}>
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold">Community Posts</h1>
-            <Dialog>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-[#6B21A8] hover:bg-[#7C3AED]">Create Post</Button>
               </DialogTrigger>
@@ -127,10 +232,26 @@ export default function CommunityPage() {
                   <DialogDescription>Share your thoughts with the community</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
-                  <Textarea placeholder="Post title" className="bg-[#0E0A1F] text-white" />
-                  <Textarea placeholder="What do you wanna share? ✨" className="bg-[#0E0A1F] text-white min-h-[200px]" />
+                  <Textarea 
+                    placeholder="Post title" 
+                    className="bg-[#0E0A1F] text-white" 
+                    value={newPostTitle}
+                    onChange={(e) => setNewPostTitle(e.target.value)}
+                  />
+                  <Textarea 
+                    placeholder="What do you wanna share? ✨" 
+                    className="bg-[#0E0A1F] text-white min-h-[200px]" 
+                    value={newPostContent}
+                    onChange={(e) => setNewPostContent(e.target.value)}
+                  />
                 </div>
-                <Button className="mt-4 bg-[#6B21A8] hover:bg-[#7C3AED]">Post</Button>
+                <Button 
+                  className="mt-4 bg-[#6B21A8] hover:bg-[#7C3AED]" 
+                  onClick={handleCreatePost}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Posting..." : "Post"}
+                </Button>
               </DialogContent>
             </Dialog>
           </div>
@@ -157,7 +278,10 @@ export default function CommunityPage() {
                 </div>
 
                 <div className="flex items-center gap-4 text-sm text-gray-400">
-                  <button className="flex items-center gap-1 hover:text-purple-400">
+                  <button 
+                    className="flex items-center gap-1 hover:text-purple-400"
+                    onClick={() => handleLikePost(post.id)}
+                  >
                     <Heart className="h-4 w-4" />
                     <span>{post.likes} likes</span>
                   </button>

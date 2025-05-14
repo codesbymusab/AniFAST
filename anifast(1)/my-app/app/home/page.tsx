@@ -11,7 +11,7 @@ import { AnimeFetcher } from "@/server/fetchanimes"
 import { useEffect, useState } from "react";
 import { WelcomeBanner } from "@/components/welcome-banner"
 import { RecentReviews } from "@/components/recent-reviews"
-import type {AnimeItem} from "@/server/types"
+import type { AnimeItem } from "@/server/types"
 
 
 import { useSession } from "next-auth/react";
@@ -23,7 +23,7 @@ export default function HomePage() {
 
   const { data: session, status } = useSession();
   const router = useRouter();
-  let filter:string ;
+  let filter: string;
 
   useEffect(() => {
     console.log("Session:", session);
@@ -31,7 +31,7 @@ export default function HomePage() {
     if (status !== "loading" && !session) {
       router.push("/login");
     }
-    
+
   }, [session, status, router]);
 
 
@@ -53,8 +53,8 @@ export default function HomePage() {
   const [popularAnime, setPopularAnime] = useState<AnimeItem[]>([]);
   const [topRatedAnime, setTopRatedAnime] = useState<AnimeItem[]>([]);
   const [loading, setLoading] = useState(true);
-  
- 
+
+
 
   useEffect(() => {
 
@@ -64,13 +64,13 @@ export default function HomePage() {
           AnimeFetcher("new", 6),
           AnimeFetcher("popular", 6),
           AnimeFetcher("top-rated", 6),
-         
+
         ]);
 
         setNewAnime(newList);
         setPopularAnime(popularList);
         setTopRatedAnime(topRatedList);
-      
+
       } catch (error) {
         console.error("Error fetching anime data:", error);
       } finally {
@@ -103,6 +103,7 @@ export default function HomePage() {
     return <Loading />
   }
 
+  
   return (
     <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">
       <NavBar toggleSidebar={toggleSidebar} />
@@ -116,18 +117,20 @@ export default function HomePage() {
             <SearchBar />
           </div>
 
-          
-              
-      <AnimeSection title="`Newly Released" animeList={mapAnime(newAnime)} viewAllLink="/new-release" />
-      <AnimeSection title="`Popular" animeList={mapAnime(popularAnime)} viewAllLink="/popular-anime" />
-      <AnimeSection title="`Top Rated" animeList={mapAnime(topRatedAnime)} viewAllLink="/top-rated" />
-  
-      {/* Recent Reviews Section */}
-      <RecentReviews />
+
+
+          <AnimeSection title="`Newly Released" animeList={mapAnime(newAnime)} viewAllLink="/new-release" />
+          <AnimeSection title="`Popular" animeList={mapAnime(popularAnime)} viewAllLink="/popular-anime" />
+          <AnimeSection title="`Top Rated" animeList={mapAnime(topRatedAnime)} viewAllLink="/top-rated" />
+
+          {/* Recent Reviews Section */}
+          <RecentReviews />
         </div>
+       
       </main>
 
       <div className={`transition-all duration-300 mt-auto ${isSidebarOpen ? "ml-64" : "mx-auto"}`}>
+
         <Footer />
       </div>
     </div>
