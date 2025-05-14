@@ -23,7 +23,7 @@ const sampleImages = [
   "/images/characters/char4.png",
   "/images/characters/char5.png",
   "/images/characters/char6.png",
-  "/images/characters/char7.png",
+
 ]
 
 const getRandomCharacterImage = () => {
