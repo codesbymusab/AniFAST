@@ -8,7 +8,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: 'aniFast App',
+    default: 'aniFast',
     template: '%s | aniFast App'
   },
   description: 'Your ultimate anime streaming and discovery platform',

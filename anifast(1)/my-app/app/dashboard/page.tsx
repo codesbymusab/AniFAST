@@ -17,6 +17,20 @@ import { useSession } from "next-auth/react"
 import { Review } from "@/components/anime-reviews"
 import { ReviewsFetcher } from "@/server/fetchreview"
 
+const sampleImages = [
+  "/images/characters/char1.png",
+  "/images/characters/char2.png",
+  "/images/characters/char3.png",
+  "/images/characters/char4.png",
+  "/images/characters/char5.png",
+  "/images/characters/char6.png",
+  "/images/characters/char7.png",
+]
+
+const getRandomCharacterImage = () => {
+  return sampleImages[Math.floor(Math.random() * sampleImages.length)]
+}
+
 export default function UserDashboardPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -203,35 +217,49 @@ if (isLoading) {
           </div>
 
           {/* Bio & Friends Section */}
-          <div className="flex flex-col md:flex-row justify-center gap-6 mb-10 max-w-4xl mx-auto">
-            <div className="flex-1 p-6 rounded-xl bg-[#1A1338]">
+         <div className="flex flex-col md:flex-row justify-center gap-6 mb-10 max-w-4xl mx-auto">
+            <div className="flex-1 p-6 rounded-xl bg-[#1A1338] relative">
               <div className="flex justify-between items-start">
                 <h2 className="text-xl font-semibold mb-4">About You</h2>
                 <Button variant="ghost" size="sm" className="text-xs text-purple-400">Edit Bio</Button>
               </div>
               <p className="text-gray-300">{user.bio}</p>
+
+              <img
+                src={getRandomCharacterImage()}
+                alt="Character"
+                className="absolute bottom-0 right-0 w-24 object-contain"
+              />
             </div>
 
             <div className="flex-1 p-6 rounded-xl bg-[#1A1338]">
-              <h2 className="text-xl font-semibold mb-4">Friends</h2>
-              <div className="grid grid-cols-2 gap-4">
-                {friends.map(friend => (
-                  <div key={friend.id} className="p-3 rounded-lg bg-[#2A1F3C]">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-16 w-16">
-                        <AvatarImage src={friend.image} />
-                        <AvatarFallback>{friend.name?.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{friend.name}</p>
-                        <p className="text-xs text-gray-400 mt-1">Status: {friend.status}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+              <h2 className="text-xl font
+
+
+
+
+
+
+ChatGPT said:
+-semibold mb-4">Friends</h2>
+<div className="grid grid-cols-2 gap-4">
+{friends.map(friend => (
+<div key={friend.id} className="p-3 rounded-lg bg-[#2A1F3C]">
+<div className="flex items-center gap-3">
+<Avatar className="h-16 w-16">
+<AvatarImage src={friend.image} />
+<AvatarFallback>{friend.name?.charAt(0)}</AvatarFallback>
+</Avatar>
+<div>
+<p className="font-medium">{friend.name}</p>
+<p className="text-xs text-gray-400 mt-1">Status: {friend.status}</p>
+</div>
+</div>
+</div>
+))}
+</div>
+</div>
+</div>
 
          {/* Posts Section */}
 <div className="space-y-4 mb-10">
