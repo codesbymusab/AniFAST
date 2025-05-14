@@ -1,3 +1,5 @@
+//File: app\api\posts\route.ts
+
 import { NextResponse } from "next/server";
 import { connectDB } from "@/server/db";
 import sql from "mssql";
@@ -27,7 +29,8 @@ export async function GET(request: Request) {
           p.LikeCount,
           p.Timestamp,
           u.Username,
-          u.PfpNum
+          u.PfpNum,
+          (SELECT COUNT(*) FROM Comments c WHERE c.PostID = p.PostID) AS CommentCount
         FROM 
           Posts p
         INNER JOIN 
@@ -46,7 +49,7 @@ export async function GET(request: Request) {
       content: post.Content,
       createdAt: post.Timestamp,
       likes: post.LikeCount,
-      comments: 0
+      comments: post.CommentCount
     }));
 
     return NextResponse.json(posts);

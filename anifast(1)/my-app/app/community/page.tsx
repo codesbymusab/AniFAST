@@ -1,4 +1,4 @@
-// File: app/community/page.tsx
+//File: app\community\page.tsx
 
 "use client"
 
@@ -10,28 +10,12 @@ import { Footer } from "@/components/footer"
 import Loading from "@/components/loading"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { formatDistanceToNow } from "date-fns"
-import { Heart } from "lucide-react"
+import { Heart, MessageCircle } from "lucide-react"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
-
-interface CommunityPost {
-  id: number
-  user: {
-    name: string
-    image: string
-  }
-  title: string
-  content: string
-  createdAt: Date
-  likes: number
-  comments: number
-  characterImage?: string
-}
-
 const sampleImages = [
   "/images/characters/char1.png",
   "/images/characters/char2.png",
@@ -46,6 +30,30 @@ const getRandomCharacterImage = () => {
   return sampleImages[Math.floor(Math.random() * sampleImages.length)]
 }
 
+interface User {
+  name: string
+  image: string
+  email?: string
+}
+
+interface Comment {
+  id: number
+  content: string
+  createdAt: Date
+  user: User
+}
+
+interface CommunityPost {
+  id: number
+  user: User
+  title: string
+  content: string
+  createdAt: Date
+  likes: number
+  comments: number
+  hasLiked?: boolean
+}
+
 export default function CommunityPage() {
   const { data: session } = useSession()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -54,25 +62,34 @@ export default function CommunityPage() {
   const [newPostTitle, setNewPostTitle] = useState("")
   const [newPostContent, setNewPostContent] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [postDialogOpen, setPostDialogOpen] = useState(false)
+  const [commentDialogOpen, setCommentDialogOpen] = useState(false)
+  const [currentPostId, setCurrentPostId] = useState<number | null>(null)
+  const [newComment, setNewComment] = useState("")
+  const [postComments, setPostComments] = useState<Comment[]>([])
+  const [commentsLoading, setCommentsLoading] = useState(false)
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card')
   const [floatingHearts, setFloatingHearts] = useState<{ id: number; x: number; y: number }[]>([])
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
   const closeSidebar = () => setIsSidebarOpen(false)
 
+  // Fetch posts on load
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         setLoading(true)
         const response = await fetch("/api/posts")
+
         if (!response.ok) throw new Error("Failed to fetch posts")
+
         const data = await response.json()
         const formattedPosts = data.map((post: any) => ({
-          ...post,
-          createdAt: new Date(post.createdAt),
-          characterImage: getRandomCharacterImage()
-        }))
+  ...post,
+  createdAt: new Date(post.createdAt),
+  characterImage: getRandomCharacterImage(), // assign random character image
+}))
+
         setPosts(formattedPosts)
       } catch (error) {
         console.error("Failed to fetch posts:", error)
@@ -81,49 +98,208 @@ export default function CommunityPage() {
         setLoading(false)
       }
     }
+
     fetchPosts()
   }, [])
 
-  const handleCreatePost = async () => {
-    if (!session?.user?.email) return toast.error("You must be logged in to create a post")
-    if (!newPostTitle.trim() || !newPostContent.trim()) return toast.error("Title and content are required")
+  useEffect(() => {
+    const checkLikeStatus = async () => {
+      if (!session?.user?.email || posts.length === 0) return
+      
+      for (const post of posts) {
+        try {
+          const response = await fetch(`/api/likes?postId=${post.id}&email=${encodeURIComponent(session.user.email)}`)
+          
+          if (response.ok) {
+            const { hasLiked } = await response.json()
+            setPosts(currentPosts => 
+              currentPosts.map(p => p.id === post.id ? { ...p, hasLiked } : p)
+            )
+          }
+        } catch (error) {
+          console.error("Failed to check like status:", error)
+        }
+      }
+    }
+
+    checkLikeStatus()
+  }, [session?.user?.email, posts.length])
+
+ const handleCreatePost = async () => {
+  if (!session?.user?.email) {
+    toast.error("You must be logged in to create a post")
+    return
+  }
+
+  if (!newPostTitle.trim() || !newPostContent.trim()) {
+    toast.error("Title and content are required")
+    return
+  }
+
+  try {
+    setIsSubmitting(true)
+
+    const response = await fetch("/api/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        title: newPostTitle, 
+        content: newPostContent, 
+        email: session.user.email 
+      })
+    })
+
+    if (!response.ok) throw new Error("Failed to create post")
+
+    const newPost = await response.json()
+    
+    // ✅ Add characterImage to the newPost object
+    setPosts([{ 
+      ...newPost, 
+      createdAt: new Date(newPost.createdAt), 
+      characterImage: getRandomCharacterImage() 
+    }, ...posts])
+
+    setNewPostTitle("")
+    setNewPostContent("")
+    setPostDialogOpen(false)
+
+    toast.success("Post created successfully!")
+  } catch (error) {
+    console.error("Failed to create post:", error)
+    toast.error("Failed to create post. Please try again.")
+  } finally {
+    setIsSubmitting(false)
+  }
+}
+
+
+  const handleToggleLike = async (postId: number, e: React.MouseEvent) => {
+    if (!session?.user?.email) {
+      toast.error("You must be logged in to like posts")
+      return
+    }
+
+    const x = e.clientX
+    const y = e.clientY
+
+    const currentPost = posts.find(p => p.id === postId)
+    const isLiked = currentPost?.hasLiked || false
+    
+    if (!isLiked) {
+      setFloatingHearts(prev => [...prev, { id: Date.now(), x, y }])
+    }
+    
+    setPosts(posts.map(p => 
+      p.id === postId 
+        ? { 
+            ...p, 
+            likes: isLiked ? p.likes - 1 : p.likes + 1,
+            hasLiked: !isLiked
+          } 
+        : p
+    ))
+
     try {
-      setIsSubmitting(true)
-      const response = await fetch("/api/posts", {
+      const response = await fetch("/api/likes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: newPostTitle, content: newPostContent, email: session.user.email })
+        body: JSON.stringify({ 
+          postId, 
+          email: session.user.email 
+        })
       })
-      if (!response.ok) throw new Error("Failed to create post")
-      const newPost = await response.json()
-      setPosts([{ ...newPost, createdAt: new Date(newPost.createdAt), characterImage: getRandomCharacterImage() }, ...posts])
-      setNewPostTitle("")
-      setNewPostContent("")
-      setDialogOpen(false)
-      toast.success("Post created successfully!")
+
+      if (!response.ok) throw new Error("Failed to toggle like")
+
+      const data = await response.json()
+      
+      setPosts(posts.map(p => 
+        p.id === postId 
+          ? { ...p, likes: data.likes, hasLiked: data.hasLiked } 
+          : p
+      ))
     } catch (error) {
-      console.error("Failed to create post:", error)
-      toast.error("Failed to create post. Please try again.")
-    } finally {
-      setIsSubmitting(false)
+      console.error("Failed to toggle like:", error)
+      toast.error("Failed to update like")
+      
+      setPosts(posts.map(p => 
+        p.id === postId 
+          ? { ...p, likes: isLiked ? p.likes : p.likes - 1, hasLiked: isLiked } 
+          : p
+      ))
     }
   }
 
-  const handleLikePost = (postId: number, e: React.MouseEvent) => {
-    const x = e.clientX
-    const y = e.clientY
-    setFloatingHearts([...floatingHearts, { id: Date.now(), x, y }])
-    setPosts(posts.map(p => p.id === postId ? { ...p, likes: p.likes + 1 } : p))
-    fetch("/api/posts", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ postId })
-    }).then(async res => {
-      if (res.ok) {
-        const data = await res.json()
-        setPosts(posts.map(p => p.id === postId ? { ...p, likes: data.likes } : p))
-      } else throw new Error("Failed to like post")
-    }).catch(() => toast.error("Failed to like post"))
+  const handleOpenComments = async (postId: number) => {
+    setCurrentPostId(postId)
+    setCommentDialogOpen(true)
+    setCommentsLoading(true)
+    
+    try {
+      const response = await fetch(`/api/comments?postId=${postId}`)
+      
+      if (!response.ok) throw new Error("Failed to fetch comments")
+      
+      const data = await response.json()
+      setPostComments(data.map((comment: any) => ({ 
+        ...comment, 
+        createdAt: new Date(comment.createdAt) 
+      })))
+    } catch (error) {
+      console.error("Failed to fetch comments:", error)
+      toast.error("Failed to load comments")
+      setPostComments([])
+    } finally {
+      setCommentsLoading(false)
+    }
+  }
+
+  const handleAddComment = async () => {
+    if (!session?.user?.email) {
+      toast.error("You must be logged in to comment")
+      return
+    }
+    
+    if (!newComment.trim()) {
+      toast.error("Comment cannot be empty")
+      return
+    }
+    
+    if (!currentPostId) return
+
+    try {
+      setIsSubmitting(true)
+
+      const response = await fetch("/api/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          postId: currentPostId, 
+          content: newComment, 
+          email: session.user.email 
+        })
+      })
+
+      if (!response.ok) throw new Error("Failed to add comment")
+
+      const comment = await response.json()
+      setPostComments([...postComments, { ...comment, createdAt: new Date(comment.createdAt) }])
+      
+      setPosts(posts.map(p => 
+        p.id === currentPostId 
+          ? { ...p, comments: p.comments + 1 } 
+          : p
+      ))
+
+      setNewComment("")
+      toast.success("Comment added!")
+    } catch (error) {
+      console.error("Failed to add comment:", error)
+      toast.error("Failed to add comment")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (loading) return <Loading />
@@ -141,7 +317,7 @@ export default function CommunityPage() {
               <Button variant="outline" onClick={() => setViewMode(viewMode === 'card' ? 'list' : 'card')}>
                 {viewMode === 'card' ? 'List View' : 'Card View'}
               </Button>
-              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <Dialog open={postDialogOpen} onOpenChange={setPostDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="bg-[#6B21A8] hover:bg-[#7C3AED]">Create Post</Button>
                 </DialogTrigger>
@@ -151,10 +327,24 @@ export default function CommunityPage() {
                     <DialogDescription>Share your thoughts with the community</DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
-                    <Textarea placeholder="Post title" className="bg-[#0E0A1F] text-white" value={newPostTitle} onChange={(e) => setNewPostTitle(e.target.value)} />
-                    <Textarea placeholder="What do you wanna share? ✨" className="bg-[#0E0A1F] text-white min-h-[200px]" value={newPostContent} onChange={(e) => setNewPostContent(e.target.value)} />
+                    <Textarea 
+                      placeholder="Post title" 
+                      className="bg-[#0E0A1F] text-white" 
+                      value={newPostTitle} 
+                      onChange={(e) => setNewPostTitle(e.target.value)} 
+                    />
+                    <Textarea 
+                      placeholder="What do you wanna share? ✨" 
+                      className="bg-[#0E0A1F] text-white min-h-[200px]" 
+                      value={newPostContent} 
+                      onChange={(e) => setNewPostContent(e.target.value)} 
+                    />
                   </div>
-                  <Button className="mt-4 bg-[#6B21A8] hover:bg-[#7C3AED]" onClick={handleCreatePost} disabled={isSubmitting}>
+                  <Button 
+                    className="mt-4 bg-[#6B21A8] hover:bg-[#7C3AED]" 
+                    onClick={handleCreatePost} 
+                    disabled={isSubmitting}
+                  >
                     {isSubmitting ? "Posting..." : "Post"}
                   </Button>
                 </DialogContent>
@@ -162,7 +352,7 @@ export default function CommunityPage() {
             </div>
           </div>
 
-          <div className={`transition-all grid gap-6 ${viewMode === 'card' ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
+          <div className={viewMode === 'card' ? 'grid grid-cols-1 sm:grid-cols-2 gap-6' : 'space-y-6'}>
             <AnimatePresence>
               {posts.map(post => (
                 <motion.div
@@ -171,44 +361,117 @@ export default function CommunityPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
                   transition={{ duration: 0.3 }}
-                  className={`relative p-6 rounded-xl backdrop-blur-md bg-white/5 border border-white/10 shadow-lg flex ${viewMode === 'list' ? 'flex-row' : 'flex-col'}`}
-                >
-                  <div className="flex-1 pr-4">
-                    <div className="flex items-center gap-3 mb-4">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={post.user.image} />
-                        <AvatarFallback>{post.user.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h3 className="font-semibold">{post.user.name}</h3>
-                        <p className="text-xs text-gray-400">{formatDistanceToNow(post.createdAt, { addSuffix: true })}</p>
-                      </div>
-                    </div>
-                    <div className="mb-4">
-                      <h4 className="text-lg font-bold mb-2">{post.title}</h4>
-                      <p className="text-gray-300 whitespace-pre-wrap break-words max-w-full">{post.content}</p>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-gray-400">
-                      <button onClick={(e) => handleLikePost(post.id, e)} className="flex items-center gap-1 hover:text-pink-400 relative">
-                        <Heart className="h-4 w-4" />
-                        <span>{post.likes} likes</span>
-                      </button>
+                className="relative p-6 pb-32 rounded-xl backdrop-blur-md bg-white/5 border border-white/10 shadow-lg"
+                 >
+                  <div className="flex items-center gap-3 mb-4">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={post.user.image} alt={post.user.name} />
+                      <AvatarFallback>{post.user.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="font-semibold">{post.user.name}</h3>
+                      <p className="text-xs text-gray-400">{formatDistanceToNow(post.createdAt, { addSuffix: true })}</p>
                     </div>
                   </div>
-                  {post.characterImage && (
-                    <img
-                      src={post.characterImage}
-                      alt="Character"
-                      className="w-24 object-contain self-end"
-                    />
+                  <div className="mb-4">
+                    <h4 className="text-lg font-bold mb-2">{post.title}</h4>
+                    <p className="text-gray-300 whitespace-pre-wrap">{post.content}</p>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-gray-400">
+                    <button 
+                      onClick={(e) => handleToggleLike(post.id, e)} 
+                      className={`flex items-center gap-1 hover:text-pink-400 relative ${post.hasLiked ? 'text-pink-400' : ''}`}
+                      aria-label={post.hasLiked ? "Unlike post" : "Like post"}
+                    >
+                      <Heart className={`h-4 w-4 ${post.hasLiked ? 'fill-current text-red-500' : ''}`} />
+                      <span>{post.likes} likes</span>
+                    </button>
+                   
+
+                    <button 
+                      onClick={() => handleOpenComments(post.id)} 
+                      className="flex items-center gap-1 hover:text-blue-400"
+                      aria-label="Show comments"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      <span>{post.comments} comments</span>
+                    </button>
+                  </div>
+                   {post.characterImage && (
+                  <img
+                    src={post.characterImage}
+                    alt="Character"
+                    className="absolute bottom-0 right-0 w-40 object-contain"
+                  />
                   )}
                 </motion.div>
+                
               ))}
             </AnimatePresence>
           </div>
         </div>
       </main>
 
+      {/* Comments Dialog */}
+      <Dialog open={commentDialogOpen} onOpenChange={setCommentDialogOpen}>
+        <DialogContent className="bg-[#1A1338] border-none text-white max-w-md w-full max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Comments</DialogTitle>
+            <DialogDescription>Join the conversation</DialogDescription>
+          </DialogHeader>
+          
+          {commentsLoading ? (
+            <div className="flex justify-center items-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+            </div>
+          ) : (
+            <div className="flex-grow overflow-y-auto mb-4 space-y-4 pr-2">
+              {postComments.length === 0 ? (
+                <p className="text-center text-gray-400 py-8">No comments yet. Be the first to comment!</p>
+              ) : (
+                postComments.map(comment => (
+                  <div key={comment.id} className="p-3 rounded-lg bg-white/5 border border-white/10">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Avatar className="h-6 w-6">
+                        <AvatarImage src={comment.user.image} alt={comment.user.name} />
+                        <AvatarFallback>{comment.user.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h5 className="text-sm font-semibold">{comment.user.name}</h5>
+                        <p className="text-xs text-gray-400">{formatDistanceToNow(comment.createdAt, { addSuffix: true })}</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-200 whitespace-pre-wrap">{comment.content}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+          
+          <div className="mt-auto pt-2 border-t border-white/10">
+            <div className="flex gap-2">
+              <Textarea
+                placeholder="Add a comment..."
+                className="bg-[#0E0A1F] text-white min-h-[60px] resize-none"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+              />
+              <Button 
+                className="bg-[#6B21A8] hover:bg-[#7C3AED] self-end"
+                onClick={handleAddComment}
+                disabled={isSubmitting || !session?.user}
+              >
+                {isSubmitting ? "Posting..." : "Post"}
+              </Button>
+            </div>
+            {!session?.user && (
+              <p className="text-xs text-gray-400 mt-2">You must be logged in to comment</p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Floating hearts animation */}
       {floatingHearts.map(({ id, x, y }) => (
         <motion.div
           key={id}
@@ -217,7 +480,9 @@ export default function CommunityPage() {
           transition={{ duration: 1 }}
           className="absolute pointer-events-none text-pink-400 text-xl"
           style={{ left: x, top: y }}
-          onAnimationComplete={() => setFloatingHearts(hearts => hearts.filter(h => h.id !== id))}
+          onAnimationComplete={() => 
+            setFloatingHearts(hearts => hearts.filter(h => h.id !== id))
+          }
         >
           ❤️
         </motion.div>

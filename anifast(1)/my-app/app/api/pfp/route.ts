@@ -1,4 +1,4 @@
-//File: app/api/pfp/route.ts
+//File: app\api\pfp\route.ts
 
 import { NextResponse } from "next/server";
 import { connectDB } from "@/server/db";
