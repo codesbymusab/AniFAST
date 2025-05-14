@@ -12,8 +12,6 @@ import { useEffect, useState } from "react";
 import { WelcomeBanner } from "@/components/welcome-banner"
 import { RecentReviews } from "@/components/recent-reviews"
 import type { AnimeItem } from "@/server/types"
-
-
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/loading"
@@ -125,6 +123,7 @@ export default function HomePage() {
 
           {/* Recent Reviews Section */}
           <RecentReviews />
+          
         </div>
        
       </main>

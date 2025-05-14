@@ -10,9 +10,16 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Anime ID is required." }, { status: 400 });
   }
   let query;
+  if(animeId.includes("user")){
+    const email = animeId.replace("user", "").trim();
+    query=`SELECT TOP 4 U.Username,A.Title,R.* FROM Reviews AS R
+ Join Anime AS A ON A.AnimeID=R.AnimeID
+ Join Users AS U ON U.Email=R.UserEmail
+ WHERE UserEmail='${email}'`
 
-  if (animeId == '0') {
-    query = `SELECT U.Username,A.Title,R.* FROM Reviews AS R
+  }
+  else if (animeId == '0') {
+    query = `SELECT TOP 6 U.Username,A.Title,R.* FROM Reviews AS R
  Join Anime AS A ON A.AnimeID=R.AnimeID
  Join Users AS U ON U.Email=R.UserEmail`;
   }

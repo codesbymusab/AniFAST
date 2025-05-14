@@ -114,3 +114,14 @@ h2.section-title {
 .animate-pulse-glow {
   animation: pulse-glow 4s ease-in-out infinite;
 }
+
+
+df-messenger {
+  --df-messenger-bot-message: #6B21A8; /* Bot message background */
+  --df-messenger-user-message: #1F1B3C; /* User message background */
+  --df-messenger-font-color: white; /* Font color */
+  --df-messenger-chat-background: #0E0818; /* Chat window background */
+  --df-messenger-button-titlebar-color: #6B21A8; /* Header button color */
+  --df-messenger-button-titlebar-font-color: white; /* Header text color */
+}
+

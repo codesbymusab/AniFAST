@@ -14,6 +14,8 @@ import { AnimeFetcher } from "@/server/fetchanimes"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { useSession } from "next-auth/react"
+import { Review } from "@/components/anime-reviews"
+import { ReviewsFetcher } from "@/server/fetchreview"
 
 export default function UserDashboardPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -54,6 +56,30 @@ const [posts, setPosts] = useState([
   },
 ])
 
+
+
+  const [postedReviews, setPostedReviews] = useState<Review[]>([]);
+
+
+
+  useEffect(() => {
+
+    const fetchReviews = async () => {
+      try {
+        setIsLoading(true);
+        const filter="user"+session?.user?.email;
+        const fetchedReviews = await ReviewsFetcher(filter);
+        console.log("Fetched reviews in component:", fetchedReviews);
+        setPostedReviews(fetchedReviews);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [status, session?.user?.email]);
 
 
   const [watchlistAnime, setWatchlistAnime] = useState<AnimeItem[]>([])
@@ -230,18 +256,24 @@ if (isLoading) {
 
 
           {/* Reviews Section */}
-          <div className="mb-10">
-            <h2 className="text-2xl font-bold mb-4">Your Reviews</h2>
-            <div className="space-y-4">
-              {posts.map(post => (
-                <div key={post.id} className="p-4 bg-[#1A1338] rounded-xl">
-                  <h3 className="text-lg font-semibold">{post.title}</h3>
-                  <p className="text-gray-300">{post.content}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
+          <div className="space-y-4 mb-10">
+  <h2 className="text-2xl font-bold mb-4">Your Reviews</h2>
+  {postedReviews.map(review => (
+    <div key={review.ReviewDate} className="p-4 bg-[#1A1338] rounded-xl">
+      <div className="flex items-center justify-between mb-1">
+        <h3 className="text-lg font-semibold">{review.Title}</h3>
+        <span className="text-xs text-gray-400">
+          {new Date(review.ReviewDate).toLocaleString("en-US", {
+            dateStyle: "medium",
+            timeStyle: "short",
+          })}
+        </span>
+      </div>
+      <p className="text-gray-300 mb-2">{review.Content}</p>
+     
+    </div>
+  ))}
+</div>
           {/* Watchlist Section */}
           <div className="mb-6">
             <h2 className="text-2xl font-bold mb-4">Watchlist</h2>
