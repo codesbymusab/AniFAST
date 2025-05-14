@@ -14,20 +14,20 @@ export function Footer() {
           </div>
 
           <div className="flex flex-wrap justify-center gap-6 mb-6">
-            <Link href="/about" className="text-sm text-gray-400 hover:text-white">
-              About
+            <Link href="/about">
+              <span className="text-sm text-gray-400 hover:text-white cursor-pointer">About</span>
             </Link>
-            <Link href="/terms" className="text-sm text-gray-400 hover:text-white">
-              Terms of Service
+            <Link href="/terms">
+              <span className="text-sm text-gray-400 hover:text-white cursor-pointer">Terms of Service</span>
             </Link>
-            <Link href="/privacy" className="text-sm text-gray-400 hover:text-white">
-              Privacy Policy
+            <Link href="/privacy">
+              <span className="text-sm text-gray-400 hover:text-white cursor-pointer">Privacy Policy</span>
             </Link>
-            <Link href="/contact" className="text-sm text-gray-400 hover:text-white">
-              Contact
+            <Link href="/contact">
+              <span className="text-sm text-gray-400 hover:text-white cursor-pointer">Contact</span>
             </Link>
-            <Link href="/help" className="text-sm text-gray-400 hover:text-white">
-              Help Center
+            <Link href="/help">
+              <span className="text-sm text-gray-400 hover:text-white cursor-pointer">Help Center</span>
             </Link>
           </div>
 
