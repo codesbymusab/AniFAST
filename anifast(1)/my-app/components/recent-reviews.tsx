@@ -44,6 +44,7 @@ export function RecentReviews() {
               width={240}
               height={400}
               className="object-contain"
+              priority
             />
             <div className="absolute -inset-4 bg-gradient-to-b from-[#E5A9FF]/10 to-transparent rounded-full blur-xl -z-10 opacity-70"></div>
           </div>
