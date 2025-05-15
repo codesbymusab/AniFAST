@@ -95,7 +95,7 @@ export default function UserDashboardPage() {
       } catch (error) {
         console.error("Error fetching reviews:", error);
       } finally {
-        setIsLoading(false);
+        
       }
     };
 
@@ -161,7 +161,7 @@ export default function UserDashboardPage() {
       } catch (error) {
         console.error("Error fetching reviews:", error);
       } finally {
-        setIsLoading(false);
+        
       }
     };
     
@@ -225,11 +225,9 @@ export default function UserDashboardPage() {
         } catch (error) {
           console.error("Error fetching watchlist:", error)
         } finally {
-          setIsLoading(false)
+          
         }
-      } else if (status === "unauthenticated") {
-        setIsLoading(false)
-      }
+      } 
     }
     fetchWatchlist()
   }, [status, session?.user?.email])
@@ -257,9 +255,7 @@ export default function UserDashboardPage() {
         } finally {
           setIsLoading(false)
         }
-      } else if (status === "unauthenticated") {
-        setIsLoading(false)
-      }
+      } 
     }
     fetchfavorites()
   }, [status, session?.user?.email])
