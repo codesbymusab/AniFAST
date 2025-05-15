@@ -26,7 +26,7 @@ export function SearchBar() {
 
       <Input
         type="text"
-        placeholder="Search for animes by title or genres..."
+        placeholder="Search for anime by title or genre..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         className="bg-[#13102A] border-[#2A1F3C] focus:border-[#E5A9FF] h-12 pl-10 pr-12 rounded-full"
