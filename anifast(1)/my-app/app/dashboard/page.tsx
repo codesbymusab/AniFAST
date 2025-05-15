@@ -426,8 +426,8 @@ export default function UserDashboardPage() {
                       />
                     ))}
                   </div>
-			  <p className="font-medium">{review.ReviewContent}</p>
-
+                </div>
+                <p className="text-gray-200 mb-3">{review.Content}</p>
                 </div>
                   {review.AnimeId && (
                     <Link href={`/anime/${review.AnimeId}`}>
