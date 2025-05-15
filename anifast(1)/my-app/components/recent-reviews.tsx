@@ -43,7 +43,8 @@ export function RecentReviews() {
               alt="Anime Character"
               width={240}
               height={400}
-              className="object-contain"
+              className="w-full object-cover"
+          
               priority
             />
             <div className="absolute -inset-4 bg-gradient-to-b from-[#E5A9FF]/10 to-transparent rounded-full blur-xl -z-10 opacity-70"></div>
