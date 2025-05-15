@@ -345,6 +345,11 @@ export default function UserDashboardPage() {
               ) : (
                 <p className="text-gray-300">{user.bio}</p>
               )}
+		<img
+                src={getRandomCharacterImage()}
+                alt="Character"
+                className="absolute bottom-0 right-0 w-24 object-contain"
+              />
             </div>
 
             <div className="bg-white/5 backdrop-blur-lg p-6 rounded-xl border border-white/10">
@@ -421,6 +426,8 @@ export default function UserDashboardPage() {
                       />
                     ))}
                   </div>
+			  <p className="font-medium">{review.ReviewContent}</p>
+
                 </div>
                   {review.AnimeId && (
                     <Link href={`/anime/${review.AnimeId}`}>
