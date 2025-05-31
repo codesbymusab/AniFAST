@@ -1,5 +1,7 @@
--- Anime Recommendation Database Schema
 
+-------------------------------------------------------------------------------
+--DATABASE SCHEMA--
+-------------------------------------------------------------------------------
 Create Database AniFAST;
 
 GO
@@ -147,10 +149,7 @@ CREATE TABLE Recommendations (
 
 
 --------------------------------------------------------------------------------
-
 -- Consolidated SQL queries with comments explaining their purpose.
--- Replace placeholders (e.g., @email, @AnimeID, @limit) with actual bindings
-
 --------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------
@@ -786,5 +785,150 @@ VALUES (
 SELECT SCOPE_IDENTITY() AS id;
 GO
 
+
+-------------------------------------------------------------------------------
+-- 1. INDEXES
+-------------------------------------------------------------------------------
+-- USERS table
+CREATE UNIQUE INDEX IX_Users_Email ON Users (Email);
+CREATE NONCLUSTERED INDEX IX_Users_Username ON Users (Username);
+
+-- ANIME table
+CREATE NONCLUSTERED INDEX IX_Anime_Title ON Anime (Title);
+CREATE NONCLUSTERED INDEX IX_Anime_JapaneseTitle ON Anime (JapaneseTitle);
+CREATE NONCLUSTERED INDEX IX_Anime_StudioID ON Anime (StudioID);
+
+-- GENRES and TAGS tables
+CREATE NONCLUSTERED INDEX IX_Genres_Name ON Genres (Name);
+CREATE NONCLUSTERED INDEX IX_Tags_Name ON Tags (Name);
+
+-- ANIMEGENRES table
+CREATE NONCLUSTERED INDEX IX_AnimeGenres_AnimeID ON AnimeGenres (AnimeID);
+CREATE NONCLUSTERED INDEX IX_AnimeGenres_GenreID ON AnimeGenres (GenreID);
+
+-- ANIMETAGS table
+CREATE NONCLUSTERED INDEX IX_AnimeTags_AnimeID ON AnimeTags (AnimeID);
+CREATE NONCLUSTERED INDEX IX_AnimeTags_TagID ON AnimeTags (TagID);
+
+-- FAVORITES table
+CREATE UNIQUE INDEX IX_Favorites_Email_AnimeID ON Favorites (Email, AnimeID);
+
+-- WATCHLIST table
+CREATE UNIQUE INDEX IX_Watchlist_Email_AnimeID ON Watchlist (Email, AnimeID);
+
+-- REVIEWS table
+CREATE NONCLUSTERED INDEX IX_Reviews_AnimeId ON Reviews (AnimeId);
+CREATE NONCLUSTERED INDEX IX_Reviews_UserEmail ON Reviews (UserEmail);
+
+-- POSTS table
+CREATE NONCLUSTERED INDEX IX_Posts_Email ON Posts (Email);
+CREATE NONCLUSTERED INDEX IX_Posts_Timestamp ON Posts (Timestamp DESC);
+
+-- COMMENTS table
+CREATE NONCLUSTERED INDEX IX_Comments_PostID ON Comments (PostID);
+CREATE NONCLUSTERED INDEX IX_Comments_Email ON Comments (Email);
+
+-- LIKES table
+CREATE NONCLUSTERED INDEX IX_Likes_PostID_Email ON Likes (PostID, Email);
+CREATE NONCLUSTERED INDEX IX_Likes_PostID ON Likes (PostID);
+
+-- FRIENDS table
+CREATE NONCLUSTERED INDEX IX_Friends_UserEmail ON Friends (UserEmail);
+CREATE NONCLUSTERED INDEX IX_Friends_FriendEmail ON Friends (FriendEmail);
+
+-------------------------------------------------------------------------------
+-- 2. TRIGGERS
+-------------------------------------------------------------------------------
+-- Ensure CommentsCount column exists in Posts
+IF COL_LENGTH('Posts', 'CommentsCount') IS NULL
+BEGIN
+  ALTER TABLE Posts ADD CommentsCount INT NOT NULL DEFAULT 0;
+END
+
+-- Trigger: After INSERT on Comments (increment CommentsCount)
+CREATE OR ALTER TRIGGER trg_Comments_Insert ON Comments
+AFTER INSERT AS
+BEGIN
+  SET NOCOUNT ON;
+  UPDATE Posts
+  SET CommentsCount = CommentsCount + inc.CountInc
+  FROM Posts
+  INNER JOIN (
+    SELECT PostID, COUNT(*) AS CountInc FROM Inserted GROUP BY PostID
+  ) AS inc ON Posts.PostID = inc.PostID;
+END;
+
+-- Trigger: After DELETE on Comments (decrement CommentsCount)
+CREATE OR ALTER TRIGGER trg_Comments_Delete ON Comments
+AFTER DELETE AS
+BEGIN
+  SET NOCOUNT ON;
+  UPDATE Posts
+  SET CommentsCount = CommentsCount - dec.CountDec
+  FROM Posts
+  INNER JOIN (
+    SELECT PostID, COUNT(*) AS CountDec FROM Deleted GROUP BY PostID
+  ) AS dec ON Posts.PostID = dec.PostID;
+END;
+
+-- Trigger: After INSERT on Likes (increment LikeCount)
+CREATE OR ALTER TRIGGER trg_Likes_Insert ON Likes
+AFTER INSERT AS
+BEGIN
+  SET NOCOUNT ON;
+  UPDATE Posts
+  SET LikeCount = LikeCount + inc.CountInc
+  FROM Posts
+  INNER JOIN (
+    SELECT PostID, COUNT(*) AS CountInc FROM Inserted GROUP BY PostID
+  ) AS inc ON Posts.PostID = inc.PostID;
+END;
+
+-- Trigger: After DELETE on Likes (decrement LikeCount)
+CREATE OR ALTER TRIGGER trg_Likes_Delete ON Likes
+AFTER DELETE AS
+BEGIN
+  SET NOCOUNT ON;
+  UPDATE Posts
+  SET LikeCount = LikeCount - dec.CountDec
+  FROM Posts
+  INNER JOIN (
+    SELECT PostID, COUNT(*) AS CountDec FROM Deleted GROUP BY PostID
+  ) AS dec ON Posts.PostID = dec.PostID;
+END;
+
+-- Trigger: Prevent duplicate Watchlist entries
+CREATE OR ALTER TRIGGER trg_Watchlist_PreventDuplicates ON Watchlist
+INSTEAD OF INSERT AS
+BEGIN
+  SET NOCOUNT ON;
+  IF EXISTS (
+    SELECT 1 FROM Inserted i
+    JOIN Watchlist w ON i.Email = w.Email AND i.AnimeID = w.AnimeID
+  )
+  BEGIN
+    RAISERROR('Duplicate watchlist entry.', 16, 1);
+    RETURN;
+  END
+  INSERT INTO Watchlist (Email, AnimeID)
+  SELECT Email, AnimeID FROM Inserted;
+END;
+
+-- Trigger: Prevent duplicate Favorites entries
+CREATE OR ALTER TRIGGER trg_Favorites_PreventDuplicates ON Favorites
+INSTEAD OF INSERT AS
+BEGIN
+  SET NOCOUNT ON;
+  IF EXISTS (
+    SELECT 1 FROM Inserted i
+    JOIN Favorites f ON i.Email = f.Email AND i.AnimeID = f.AnimeID
+  )
+  BEGIN
+    RAISERROR('Duplicate favorites entry.', 16, 1);
+    RETURN;
+  END
+  INSERT INTO Favorites (Email, AnimeID)
+  SELECT Email, AnimeID FROM Inserted;
+END;
 
 
