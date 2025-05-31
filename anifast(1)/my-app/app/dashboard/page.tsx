@@ -274,7 +274,8 @@ export default function UserDashboardPage() {
   }
 
   return (
- 
+      <div>
+       <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white"></div>
       <main className={`flex-grow transition-all duration-300 pt-24 px-6 pb-6 ${isSidebarOpen ? "ml-64" : "mx-auto"}`}>
         <div className={`max-w-4xl ${!isSidebarOpen && "mx-auto"}`}>
 
@@ -393,52 +394,62 @@ export default function UserDashboardPage() {
             </div>
           </div>
 
-          {/* Reviews Section */}
-          <div className="mb-10">
-            <h2 className="text-2xl font-bold mb-4">Your Reviews</h2>
-            <div className="space-y-4">
-              {postedReviews.map(review => (
-                <div key={review.ReviewDate} className="bg-white/5 backdrop-blur-lg p-6 rounded-xl border border-white/10">
-                  <div className="flex justify-between mb-2">
-                    <h3 className="text-lg font-bold">{review.Title}</h3>
-                    <span className="text-sm text-gray-400">
-                      {new Date(review.ReviewDate).toLocaleString("en-US", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      })}
-                     <p className="text-gray-200 mb-3">{review.Content || "No review content available."}</p>
-   		 </div>
-                  <div className="flex items-center mb-2">
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className={`h-4 w-4 ${review.Rating >= star
-                            ? "fill-[#E5A9FF] text-[#E5A9FF]"
-                            : review.Rating >= star - 0.5
-                              ? "fill-[#E5A9FF] text-[#E5A9FF] opacity-50"
-                              : "text-gray-500"
-                          }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-             
-                </div>
-                  {review.AnimeId && (
-                    <Link href={`/anime/${review.AnimeId}`}>
-                      <Button variant="link" className="p-0 text-purple-400 hover:text-purple-300">
-                        View Anime
-                      </Button>
-                    </Link>
-                  )}
-                </div>
-              ))}
-              {postedReviews.length === 0 && (
-                <p className="text-gray-400">You haven't posted any reviews yet.</p>
-              )}
-            </div>
+ {/* Reviews Section */}
+<div className="mb-10">
+  <h2 className="text-2xl font-bold mb-4">Your Reviews</h2>
+  <div className="space-y-4">
+    {postedReviews.map((review) => (
+      <div
+        key={review.ReviewDate}
+        className="bg-white/5 backdrop-blur-lg p-6 rounded-xl border border-white/10"
+      >
+        <div className="flex justify-between mb-2">
+          <h3 className="text-lg font-bold">{review.Title}</h3>
+          <span className="text-sm text-gray-400">
+            {new Date(review.ReviewDate).toLocaleString("en-US", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })}
+          </span>
+        </div>
+        {/* Stars and review text in a vertical stack */}
+        <div className="mb-2">
+          {/* Star ratings in a row */}
+          <div className="flex mb-2">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                className={`h-4 w-4 ${
+                  review.Rating >= star
+                    ? "fill-[#E5A9FF] text-[#E5A9FF]"
+                    : review.Rating >= star - 0.5
+                    ? "fill-[#E5A9FF] text-[#E5A9FF] opacity-50"
+                    : "text-gray-500"
+                }`}
+              />
+            ))}
           </div>
+          {/* Review content below the stars */}
+          <p className="text-gray-200">{review.Content || "No review content available."}</p>
+        </div>
+        {review.AnimeId && (
+          <Link href={`/anime/${review.AnimeId}`}>
+            <Button
+              variant="link"
+              className="p-0 text-purple-400 hover:text-purple-300"
+            >
+              View Anime
+            </Button>
+          </Link>
+        )}
+      </div>
+    ))}
+    {postedReviews.length === 0 && (
+      <p className="text-gray-400">You haven't posted any reviews yet.</p>
+    )}
+  </div>
+</div>
+
 
           {/* Watchlist Section */}
           <div className="mb-10">
@@ -476,7 +487,7 @@ export default function UserDashboardPage() {
       <div className={`transition-all duration-300 mt-auto ${isSidebarOpen ? "ml-64" : "mx-auto"}`}>
         <Footer />
       </div>
-    </div>
-	  </div>
+    
+	 </div> 
   )
 }              
