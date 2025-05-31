@@ -274,11 +274,7 @@ export default function UserDashboardPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0E0A1F] text-white">
-      <NavBar toggleSidebar={toggleSidebar} />
-      {/* @ts-ignore - We're keeping the frontend components unchanged as requested */}
-      <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
-   </div>
+ 
       <main className={`flex-grow transition-all duration-300 pt-24 px-6 pb-6 ${isSidebarOpen ? "ml-64" : "mx-auto"}`}>
         <div className={`max-w-4xl ${!isSidebarOpen && "mx-auto"}`}>
 
