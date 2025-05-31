@@ -410,8 +410,8 @@ export default function UserDashboardPage() {
                         dateStyle: "medium",
                         timeStyle: "short",
                       })}
-                    </span>
-                  </div>
+                     <p className="text-gray-200 mb-3">{review.Content || "No review content available."}</p>
+   		 </div>
                   <div className="flex items-center mb-2">
                   <div className="flex">
                     {[1, 2, 3, 4, 5].map((star) => (
@@ -427,7 +427,7 @@ export default function UserDashboardPage() {
                     ))}
                   </div>
                 </div>
-                <p className="text-gray-200 mb-3">{review.Content}</p>
+             
                 </div>
                   {review.AnimeId && (
                     <Link href={`/anime/${review.AnimeId}`}>
@@ -481,5 +481,6 @@ export default function UserDashboardPage() {
         <Footer />
       </div>
     </div>
+	  </div>
   )
 }              
