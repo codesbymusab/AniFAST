@@ -2,6 +2,14 @@
 
 AniFAST is a full-stack anime discovery and community platform. It lets users browse and search an anime catalog, build personalized watchlists and favorites, write reviews, get tailored recommendations, and connect with other fans through forums, posts, friends, and direct messaging.
 
+---
+
+## 🔗 Live Link
+
+https://ani-fast-ftwt.vercel.app
+
+---
+
 ## 🚀 Key Features
 
 ### 📚 Anime Catalog
@@ -124,4 +132,4 @@ See `AniFAST_project_schema_diagram.pdf` for a visual entity-relationship diagra
 
 ## 📄 License
 
-No license has been specified for this repository yet. Add a `LICENSE` file to clarify usage terms.
+This project is open-source and available under the MIT License.
