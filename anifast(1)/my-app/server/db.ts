@@ -7,7 +7,7 @@ const config: SqlConfig = {
   password: process.env.DB_PASSWORD ?? "",
   server: process.env.DB_SERVER ?? "",
   database: process.env.DB_NAME ?? "",
-  port: process.env.DB_PORT ?? "",
+  port: Number.parseInt(process.env.DB_PORT ?? ""),
   options: {
     encrypt: true, // Required for Azure SQL
     trustServerCertificate: true,
